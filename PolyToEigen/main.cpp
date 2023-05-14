@@ -1,14 +1,43 @@
 #include <iostream>
 #include <Eigen/Dense>
+//#include <gtest/gtest.h>
+#include "Poly.h"
+#include <tuple>
+//#include "PolyAbs.h"
+#include "LinearLS.h"
+
  
 using Eigen::MatrixXd;
- 
+std::pair<Eigen::MatrixXd, Eigen::MatrixXd> SetupGeneralCameraConfiguration();
+
+
+void EvaluateResult(const Eigen::Vector3d& result, const Eigen::Vector3d& expected_result, double max_percentage_error = 0.001);
 int main()
 {
-  MatrixXd m(2,2);
-  m(0,0) = 3;
-  m(1,0) = 2.5;
-  m(0,1) = -1;
-  m(1,1) = m(1,0) + m(0,1);
-  std::cout << m << std::endl;
+    Eigen::MatrixXd P0, P1;
+	std::tie(P0, P1) = SetupGeneralCameraConfiguration();
+	//std::tie(P0, P1) = SetupGeneralCameraConfiguration();
+	//std::pair<Eigen::MatrixXd, Eigen::MatrixXd> SetupPair;
+	//SetupPair = SetupGeneralCameraConfiguration();
+	//Eigen::MatrixXd P0 = SetupPair.first;
+	//Eigen::MatrixXd P1  = SetupPair.second;
+	//(P0, P1) = SetupGeneralCameraConfiguration();
+	Triangulation::Poly p(P0, P1);
+    //example of 2 points
+    Eigen::Vector3d point1(146, 642.288);
+    Eigen::Vector3d point2(1137.31, 385.201);
+	Eigen::Vector3d result = p.triangulate(point1,point2);
+	Eigen::Vector3d expected_result(0.0, 100.0, 10000.0);
+	EvaluateResult(result, expected_result);
+    
+}
+
+
+void EvaluateResult(const Eigen::Vector3d& result, const Eigen::Vector3d& expected_result, double max_percentage_error = 0.001)
+{   double expect_norm=  expected_result.norm();
+	double tolerance = expect_norm * max_percentage_error;
+    Eigen::Vector3d dist = result - expected_result;
+	double distance = dist.norm();
+    std::cout  << distance << tolerance <<std::endl;
+	//EXPECT_NEAR(distance, 0.0, tolerance);
 }

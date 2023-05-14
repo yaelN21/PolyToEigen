@@ -10,6 +10,7 @@ namespace Triangulation {
 
 	PolyBase::PolyBase(const Eigen::MatrixXd& P0, const Eigen::MatrixXd& P1)
 		: TriangulationBase(P0, P1), F(ComputeFundamentalMatrix(P0, P1)), LS(P0, P1)
+	
 	{}
 
 	PolyBase::PolyBase(const Eigen::MatrixXd& P0, const Eigen::MatrixXd& P1, const PolyBase::Fundamental& F)
@@ -130,23 +131,33 @@ namespace Triangulation {
 		return -1;
 	}
 
-	PolyBase::Roots PolyBase::Solve(const PolyParams& params) const
-	{ //not sure at all !!!!!!!!!!!!!!! maybe all what i did here is a mistake
-		std::vector<double> coeffs = PreparePolyCoeffs(params);
-		if (coeffs.size() <= 1)
-		{
-			return { 0 };
-		}
-		std::vector<Eigen::Vector2d> roots;
-		cv::solvePoly(coeffs, roots); //roots is the output of solvePoly with parametr coeffs
+	#include <Eigen/Dense>
 
-		Roots result(roots.size());
-		for (size_t i = 0u; i < roots.size(); ++i)
-		{
-			result[i] = std::complex<double>(roots[i][0], roots[i][1]);
-		}
-		return result;
-	}
+PolyBase::Roots PolyBase::Solve(const PolyParams& params) const
+{
+    std::vector<double> coeffs = PreparePolyCoeffs(params);
+    if (coeffs.size() <= 1)
+    {
+        return { 0 };
+    }
+
+    Eigen::VectorXd polynomial(coeffs.size());
+    for (size_t i = 0u; i < coeffs.size(); ++i)
+    {
+        polynomial(i) = coeffs[i];
+    }
+
+    Eigen::EigenSolver<Eigen::MatrixXd> solver(polynomial.reverse().asDiagonal());
+
+    PolyBase::Roots result(solver.eigenvalues().size());
+    for (size_t i = 0u; i < solver.eigenvalues().size(); ++i)
+    {
+        result[i] = solver.eigenvalues()[i].real();
+    }
+
+    return result;
+}
+
 
 	double PolyBase::EvaluateRoots(const PolyBase::Roots& roots, const PolyParams& params) const
 	{
@@ -191,7 +202,7 @@ namespace Triangulation {
 		Eigen::MatrixXd mul = e2x * F;
 
 		//from here this is wrong for sure
-		result(cv(0, 0, 3, 3)) = mul;
+		result.block(0, 0, 3, 3) = mul;
 		result(0, 3) = Z(0);
 		result(1, 3) = Z(1);
 		result(2, 3) = Z(2);

@@ -5,7 +5,7 @@
 
 using Eigen::Matrix3d;
 using Eigen::Vector3d;
-using Eigen::Vector;
+
 using Eigen::MatrixXd;
 
 namespace Triangulation {

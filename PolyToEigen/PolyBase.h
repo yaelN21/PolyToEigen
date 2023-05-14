@@ -27,6 +27,7 @@ namespace Triangulation {
 		 *	\param 	P1	Camera matrix of the second camera.
 		 */
 
+		public:
 		PolyBase(const Eigen::MatrixXd& P0, const Eigen::MatrixXd& P1);
 			/**
 			 *	\brief	Constructor

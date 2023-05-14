@@ -2,8 +2,10 @@
 
 namespace Triangulation {
 
-	Triangulation::TriangulationBase::TriangulationBase(const Eigen::MatrixXd& P0, Eigen::MatrixXd& P1)
-		: P0(P0), P1(P1) {}
+	Triangulation::TriangulationBase::TriangulationBase(const Eigen::MatrixXd& P0,const Eigen::MatrixXd& P1):
+	 P0(P0), P1(P1) {
+		//test
+	}
 
 	std::vector<Eigen::Vector3d> TriangulationBase::triangulate(const std::vector<Eigen::Vector2d>& p0, const std::vector<Eigen::Vector2d>& p1) const
 	{
