@@ -1,7 +1,8 @@
 #include "TriangulationBase.h"
 
 namespace Triangulation {
-
+#ifndef LinearLS_H
+#define LinearLS_H
 	class LinearLS : public TriangulationBase
 	{
 	public:
@@ -15,5 +16,5 @@ namespace Triangulation {
 		 */
 		Eigen::Vector3d triangulate(const Eigen::Vector2d& p0, const Eigen::Vector2d& p1) const override;
 	};
-
+#endif 
 }

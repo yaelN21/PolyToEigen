@@ -14,17 +14,21 @@ namespace Triangulation {
 	 *	\brief
 	 */
 
+#ifndef TRIANGULATIONBASE_H
+#define TRIANGULATIONBASE_H
 
 class TriangulationBase {
 	public:
 		/**
+		 * 
 		 *	\brief	Constructor
 		 *	\param	P0	Camera matrix of the first camera.
 		 *	\param 	P1	Camera matrix of the second camera.
 		 */
+		
 
 		TriangulationBase(const Eigen::MatrixXd& P0, const Eigen::MatrixXd& P1);
-		virtual ~TriangulationBase() = default;
+		virtual ~TriangulationBase() {}
 			/**
 			 *	\brief	Triangulates image points.
 			 *	\param	p0	Point in the image of the first camera.
@@ -43,6 +47,6 @@ class TriangulationBase {
 	protected:
 		const Eigen::MatrixXd P0, P1;
 	};
-
+#endif  // TRIANGULATIONBASE_H
 }	// Triangulation
 

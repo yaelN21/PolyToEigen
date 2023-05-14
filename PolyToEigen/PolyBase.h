@@ -4,6 +4,7 @@
 #include <complex>
 #include "TriangulationBase.h"
 #include "LinearLS.h"
+#include <vector>
 
 
 using Eigen::Matrix3d;
@@ -46,7 +47,7 @@ namespace Triangulation {
 	protected:
 		typedef Eigen::Vector3d Line;
 		typedef Eigen::Vector3d Epipole;
-		typedef std::vector<std::complex<double>> Roots;
+		typedef std::vector<std::complex<double> > Roots;
 		typedef std::tuple<double, double, double, double, double, double> PolyParams;
 		/**
 		 *	\brief	Computes corrected correspondences, that minimize the geometric error.
