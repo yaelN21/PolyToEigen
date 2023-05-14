@@ -5,6 +5,7 @@
 #include <tuple>
 //#include "PolyAbs.h"
 #include "LinearLS.h"
+#include <vector>
 
  
 using Eigen::MatrixXd;
@@ -15,7 +16,10 @@ void EvaluateResult(const Eigen::Vector3d& result, const Eigen::Vector3d& expect
 int main()
 {
     Eigen::MatrixXd P0, P1;
-	std::tie(P0, P1) = SetupGeneralCameraConfiguration();
+
+	auto result_setup = SetupGeneralCameraConfiguration();
+	P0 =result_setup.first;
+	P1 = result_setup.second;
 	//std::tie(P0, P1) = SetupGeneralCameraConfiguration();
 	//std::pair<Eigen::MatrixXd, Eigen::MatrixXd> SetupPair;
 	//SetupPair = SetupGeneralCameraConfiguration();
