@@ -133,8 +133,8 @@ namespace Triangulation {
 		 *	\param	P1	Second camera projection matrix.
 		 *	\return	K0, K1, R and T - camera intrinsics and orientation of second camera in new world coordinates.
 		 */
-		std::tuple<Intrinsic, Intrinsic, Eigen::MatrixXd, Eigen::MatrixXd> SetOriginToCamera(const Eigen::MatrixXd& P0, const Eigen::MatrixXd& P1) const;
-		/**
+
+		std::tuple<Intrinsic, Intrinsic, Eigen::MatrixXd, Eigen::MatrixXd> SetOriginToCamera(const Eigen::MatrixXd& P0, const Eigen::MatrixXd& P1) const;		/**
 		 *	\brief	Computes fundamental matrix from camera projection matrices.
 		 *	\param	P0	First camera projection matrix.
 		 *	\param	P1	Second camera projection matrix.
