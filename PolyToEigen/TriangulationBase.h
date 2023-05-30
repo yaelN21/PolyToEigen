@@ -3,10 +3,10 @@
 #include <vector>
 
 
-using Eigen::Matrix3d;
-using Eigen::Vector3d;
+using Eigen::Matrix3f;
+using Eigen::Vector3f;
 
-using Eigen::MatrixXd;
+using Eigen::MatrixXf;
 
 namespace Triangulation {
 		/**
@@ -27,7 +27,7 @@ class TriangulationBase {
 		 */
 		
 
-		TriangulationBase(const Eigen::MatrixXd& P0, const Eigen::MatrixXd& P1);
+		TriangulationBase(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1);
 		virtual ~TriangulationBase() {}
 			/**
 			 *	\brief	Triangulates image points.
@@ -35,17 +35,17 @@ class TriangulationBase {
 			 *	\param	p1	Corresponding point in the image of the second camera.
 			 *	\return	Triangulated point.
 			 */
-		virtual Eigen::Vector3d triangulate(const Eigen::Vector2d& p0, const Eigen::Vector2d& p1) const = 0;
+		virtual Eigen::Vector3f triangulate(const Eigen::Vector2f& p0, const Eigen::Vector2f& p1) const = 0;
 			/**
 			 *	\brief	Triangulate points using The Direct Linear Transformation Method.
 			 *	\param	p0	Points in the image of the first camera.
 			 *	\param	p1	Corresponding points in the image of the second camera.
 			 *	\return	Triangulated points.
 			 */
-		std::vector<Eigen::Vector3d> triangulate(const std::vector<Eigen::Vector2d>& p0, const std::vector<Eigen::Vector2d>& p1) const;
+		std::vector<Eigen::Vector3f> triangulate(const std::vector<Eigen::Vector2f>& p0, const std::vector<Eigen::Vector2f>& p1) const;
 
 	protected:
-		const Eigen::MatrixXd P0, P1;
+		const Eigen::MatrixXf P0, P1;
 	};
 #endif  // TRIANGULATIONBASE_H
 }	// Triangulation

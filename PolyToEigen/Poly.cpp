@@ -2,11 +2,11 @@
 
 namespace Triangulation {
 
-	std::vector<double> Poly::PreparePolyCoeffs(const Poly::PolyParams& params) const
+	std::vector<float> Poly::PreparePolyCoeffs(const Poly::PolyParams& params) const
 	{
-		double a, b, c, d, e, f;
+		float a, b, c, d, e, f;
 		std::tie(a, b, c, d, e, f) = params;
-		std::vector<double> result = {
+		std::vector<float> result = {
 			// a*b*d^2 - b^2*c*d
 			a * b * d * d - b * b * c * d,
 			// - 2*b^2*d^2*f^2*z + a^2*d^2*z - d^4*f^4*z - b^2*c^2*z - b^4*z
@@ -23,29 +23,29 @@ namespace Triangulation {
 			a * a * c * d * e * e * e * e - a * b * c * c * e * e * e * e
 		};
 		result.resize(FindPolynomialOrder(result) + 1);
-		double max_coeff = *std::max_element(result.begin(), result.end());
+		float max_coeff = *std::max_element(result.begin(), result.end());
 		if (max_coeff > 0)
 		{
-			std::transform(result.begin(), result.end(), result.begin(), [&max_coeff](double& a) { return a / max_coeff; });
+			std::transform(result.begin(), result.end(), result.begin(), [&max_coeff](float& a) { return a / max_coeff; });
 		}
 		else if (max_coeff < 0)
 		{
-			double min_coeff = *std::min_element(result.begin(), result.end());
-			std::transform(result.begin(), result.end(), result.begin(), [&min_coeff](double& a) { return a / min_coeff; });
+			float min_coeff = *std::min_element(result.begin(), result.end());
+			std::transform(result.begin(), result.end(), result.begin(), [&min_coeff](float& a) { return a / min_coeff; });
 		}
 		return result;
 	}
 
-	std::vector<double> Poly::EvaluateRootsCosts(const Poly::Roots& roots, const Poly::PolyParams& params) const
+	std::vector<float> Poly::EvaluateRootsCosts(const Poly::Roots& roots, const Poly::PolyParams& params) const
 	{
-		double a, b, c, d, e, f;
+		float a, b, c, d, e, f;
 		std::tie(a, b, c, d, e, f) = params;
-		auto cost_function = [&](double t)
+		auto cost_function = [&](float t)
 		{
 			return ((t * t) / (1 + e * e * t * t)) + ((c * t + d) * (c * t + d)) / ((a * t + b) * (a * t + b) + f * f * (c * t + d) * (c * t + d));
 		};
 
-		std::vector<double> result(roots.size());
+		std::vector<float> result(roots.size());
 		for (size_t i = 0u; i < roots.size(); ++i)
 		{
 			result[i] = cost_function(roots[i].real());

@@ -14,7 +14,7 @@ namespace Triangulation {
 		using PolyBase::PolyBase;
 		using PolyBase::TriangulationBase::triangulate;
 	private:
-		std::vector<double> PreparePolyCoeffs(const PolyParams& params) const override;
-		std::vector<double> EvaluateRootsCosts(const Roots& roots, const PolyParams& params) const override;
+		std::vector<float> PreparePolyCoeffs(const PolyParams& params) const override;
+		std::vector<float> EvaluateRootsCosts(const Roots& roots, const PolyParams& params) const override;
 	};
 }
