@@ -37,7 +37,7 @@ std::pair<Eigen::MatrixXd, Eigen::MatrixXd> SetupGeneralCameraConfiguration();
 
 
 void EvaluateResult(const Eigen::Vector3d& result, const Eigen::Vector3d& expected_result);
-int main()
+int main(int argc, char *argv[])
 {
 
 	auto result_setup = SetupGeneralCameraConfiguration();
@@ -57,7 +57,8 @@ int main()
 	Eigen::Vector3d result = p.triangulate(point1,point2);
 	Eigen::Vector3d expected_result(500.0, 0.0, 10000.0);
 	EvaluateResult(result, expected_result);
-    
+    std::cout << "yay" << std::endl;
+    return 0;
 }
 
 

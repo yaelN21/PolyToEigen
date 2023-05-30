@@ -22,29 +22,28 @@ namespace Triangulation {
 
 std::tuple<PolyBase::Intrinsic, PolyBase::Intrinsic, Eigen::MatrixXd, Eigen::MatrixXd> PolyBase::SetOriginToCamera(const Eigen::MatrixXd& P0, const Eigen::MatrixXd& P1) const{
     Eigen::Matrix3d K0;
-    Eigen::Matrix3d K1;
-    Eigen::Matrix3d R0;
-    Eigen::Matrix3d R1;
-    Eigen::Vector3d T0;
-    Eigen::Vector3d T1;
+	Eigen::Matrix3d K1;
+	Eigen::Matrix3d R0;
+	Eigen::Matrix3d R1;
+	Eigen::Vector4d T0;
+	Eigen::Vector4d T1;
 
-    // Decompose projection matrices
-    Eigen::Matrix3d R0_decomp;
-    Eigen::Matrix3d R1_decomp;
-    Eigen::Matrix<double, 3, 4> Q0;
-    Eigen::Matrix<double, 3, 4> Q1;
-    Eigen::Vector3d C0;
-    Eigen::Vector3d C1;
-    Eigen::Matrix3d K0_decomp;
-    Eigen::Matrix3d K1_decomp;
-    Eigen::Matrix<double, 3, 4> P0_decomp;
-    Eigen::Matrix<double, 3, 4> P1_decomp;
+	K0 = P0.block<3, 3>(0, 0);
+	K1 = P1.block<3, 3>(0, 0);
+
+	R0 = P0.block<3, 3>(0, 0);
+	R1 = P1.block<3, 3>(0, 0);
+
+	T0 << P0(0, 3), P0(1, 3), P0(2, 3), P0(2, 3);
+	T1 << P1(0, 3), P1(1, 3), P1(2, 3), P1(2, 3);
 
     Eigen::Matrix4d M = Eigen::Matrix4d::Identity();
     M.block<3, 3>(0, 0) = P0.block<3, 3>(0, 0).inverse();
-    M(0, 3) = (P0(0, 3) / P0(3, 3));
-    M(1, 3) = (P0(1, 3) / P0(3, 3));
-    M(2, 3) = (P0(2, 3) / P0(3, 3));
+	auto check =P0(2, 3);
+
+    M(0, 3) = (P0(0, 3) / P0(2, 3));
+    M(1, 3) = (P0(1, 3) / P0(2, 3));
+    M(2, 3) = (P0(2, 3) / P0(2, 3));
 
     // K0.inv() * P0 * M - should be identity
     Eigen::Matrix<double, 3, 4> tmp = K1.inverse() * P1 * M;
