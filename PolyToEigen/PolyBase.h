@@ -21,12 +21,7 @@ namespace Triangulation {
 		 *	\param	F	Fundamental matrix.
 		 */
 		
-		explicit PolyBase(const Fundamental& F);
-		/**
-		 *	\brief	Constructor
-		 *	\param	P0	Camera matrix of the first camera.
-		 *	\param 	P1	Camera matrix of the second camera.
-		 */
+		
 
 		public:
 		PolyBase(const Eigen::MatrixXd& P0, const Eigen::MatrixXd& P1);
@@ -36,6 +31,14 @@ namespace Triangulation {
 			 *	\param 	P1	Camera matrix of the second camera.
 			 *	\param	F	Fundamental matrix.
 			 */
+
+		explicit PolyBase(const Fundamental& F);
+		/**
+		 *	\brief	Constructor
+		 *	\param	P0	Camera matrix of the first camera.
+		 *	\param 	P1	Camera matrix of the second camera.
+		 */
+		
 		PolyBase(const Eigen::MatrixXd& P0, const Eigen::MatrixXd& P1, const Fundamental& F);
 			/**
 			 *	\brief	Triangulates image points.

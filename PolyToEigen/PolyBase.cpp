@@ -126,7 +126,7 @@ std::tuple<PolyBase::Intrinsic, PolyBase::Intrinsic, Eigen::MatrixXd, Eigen::Mat
 	PolyBase::Epipole PolyBase::ComputeLeftEpipole(const Eigen::MatrixXd& F) const
 	{
 		Eigen::MatrixXd W, U, VT;
-		Eigen::JacobiSVD<Eigen::MatrixXf> svd(F.transpose(), Eigen::ComputeFullU | Eigen::ComputeFullV);
+		Eigen::JacobiSVD<Eigen::MatrixXd> svd(F.transpose(), Eigen::ComputeFullU | Eigen::ComputeFullV);
 		U = svd.matrixU();
 		VT = svd.matrixV().transpose();
 		W = svd.singularValues();
@@ -136,7 +136,7 @@ std::tuple<PolyBase::Intrinsic, PolyBase::Intrinsic, Eigen::MatrixXd, Eigen::Mat
 	PolyBase::Epipole PolyBase::ComputeRightEpipole(const Eigen::MatrixXd& F) const
 	{
 		Eigen::MatrixXd W, U, VT;
-		Eigen::JacobiSVD<Eigen::MatrixXf> svd(F, Eigen::ComputeFullU | Eigen::ComputeFullV);
+		Eigen::JacobiSVD<Eigen::MatrixXd> svd(F, Eigen::ComputeFullU | Eigen::ComputeFullV);
 		U = svd.matrixU();
 		VT = svd.matrixV().transpose();
 		W = svd.singularValues();
@@ -165,7 +165,43 @@ std::tuple<PolyBase::Intrinsic, PolyBase::Intrinsic, Eigen::MatrixXd, Eigen::Mat
 		return -1;
 	}
 
-	#include <Eigen/Dense>
+
+std::vector<Eigen::Vector2d> solvePoly(const std::vector<double>& coeffs) {
+    int degree = coeffs.size() - 1;
+
+    if (degree <= 0) {
+        std::cerr << "Polynomial degree must be greater than zero!" << std::endl;
+        return std::vector<Eigen::Vector2d>();
+    }
+
+    Eigen::MatrixXd A(degree, degree);
+    Eigen::VectorXd b(degree);
+
+    // Construct the companion matrix
+    for (int i = 0; i < degree; i++) {
+        A(i, 0) = -coeffs[i + 1] / coeffs[0];
+        if (i > 0) {
+            A(i, i) = 1;
+        }
+    }
+
+    // Solve the eigenvalue problem
+    Eigen::EigenSolver<Eigen::MatrixXd> eigensolver(A);
+    if (eigensolver.info() != Eigen::Success) {
+        std::cerr << "Failed to solve the polynomial equation!" << std::endl;
+        return std::vector<Eigen::Vector2d>();
+    }
+
+    // Extract the eigenvalues as roots
+    std::vector<Eigen::Vector2d> roots(degree);
+    for (int i = 0; i < degree; i++) {
+        const std::complex<double>& eigenvalue = eigensolver.eigenvalues()[i];
+        roots[i] = Eigen::Vector2d(eigenvalue.real(), eigenvalue.imag());
+    }
+
+    return roots;
+}
+
 
 PolyBase::Roots PolyBase::Solve(const PolyParams& params) const
 {
@@ -174,22 +210,34 @@ PolyBase::Roots PolyBase::Solve(const PolyParams& params) const
     {
         return { 0 };
     }
+	
 
-    Eigen::VectorXd polynomial(coeffs.size());
-    for (size_t i = 0u; i < coeffs.size(); ++i)
-    {
-        polynomial(i) = coeffs[i];
-    }
+    // Solve the polynomial equation and obtain the roots
 
-    Eigen::EigenSolver<Eigen::MatrixXd> solver(polynomial.reverse().asDiagonal());
+	std::vector<Eigen::Vector2d> roots =solvePoly(coeffs);
 
-    PolyBase::Roots result(solver.eigenvalues().size());
-    for (size_t i = 0u; i < solver.eigenvalues().size(); ++i)
-    {
-        result[i] = solver.eigenvalues()[i].real();
-    }
+	Roots result(roots.size());
+	for (size_t i = 0u; i < roots.size(); ++i)
+	{
+		result[i] = std::complex<double>(roots[i][0], roots[i][1]);
+	}
+	return result;
 
-    return result;
+    //Eigen::VectorXd polynomial(coeffs.size());
+    //for (size_t i = 0u; i < coeffs.size(); ++i)
+    //{
+     //   polynomial(i) = coeffs[i];
+    //}
+
+    //Eigen::EigenSolver<Eigen::MatrixXd> solver(polynomial.reverse().asDiagonal());
+
+   // PolyBase::Roots result(solver.eigenvalues().size());
+    //for (size_t i = 0u; i < solver.eigenvalues().size(); ++i)
+    //{
+      //  result[i] = solver.eigenvalues()[i].real();
+    //}
+
+    //return result;
 }
 
 
@@ -235,7 +283,6 @@ PolyBase::Roots PolyBase::Solve(const PolyParams& params) const
 		Eigen::MatrixXd result = Eigen::MatrixXd::Identity(3, 4);
 		Eigen::MatrixXd mul = e2x * F;
 
-		//from here this is wrong for sure
 		result.block(0, 0, 3, 3) = mul;
 		result(0, 3) = Z(0);
 		result(1, 3) = Z(1);

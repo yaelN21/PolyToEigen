@@ -40,7 +40,7 @@ void EvaluateResult(const Eigen::Vector3d& result, const Eigen::Vector3d& expect
 int main()
 {
 
-	std::__1::pair<Eigen::MatrixXd, Eigen::MatrixXd>  result_setup = SetupGeneralCameraConfiguration();
+	auto result_setup = SetupGeneralCameraConfiguration();
 	const Eigen::MatrixXd P0 =result_setup.first;
 	const Eigen::MatrixXd P1 = result_setup.second;
 	//std::tie(P0, P1) = SetupGeneralCameraConfiguration();
