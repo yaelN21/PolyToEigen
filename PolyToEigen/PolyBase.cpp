@@ -3,50 +3,58 @@
 #include <Eigen/QR>
 
 
+
+
 namespace Triangulation {
 
 
 
-	PolyBase::PolyBase(const PolyBase::Fundamental& F)
-		: TriangulationBase(Eigen::Matrix<float, 3, 4>::Identity(), CameraProjectionMatrixFromFundamentalMatrix(F)),
-		F(F), LS(P0, P1)
+	PolyBase::PolyBase(const PolyBase::Fundamental& F,const Eigen::MatrixXf& K)
+		: TriangulationBase(Eigen::Matrix<float, 3, 4>::Identity(), CameraProjectionMatrixFromFundamentalMatrix(F),K),
+		F(F), LS(P0, P1,K)
 	{}
 
 
-	PolyBase::PolyBase(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1)
-		: TriangulationBase(P0, P1), F(ComputeFundamentalMatrix(P0, P1)), LS(P0, P1)
+	PolyBase::PolyBase(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1,const Eigen::MatrixXf& K)
+		: TriangulationBase(P0, P1,K), F(ComputeFundamentalMatrix(P0, P1,K)), LS(P0, P1,K)
 	
 	{}
 
-	PolyBase::PolyBase(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1, const PolyBase::Fundamental& F)
-		: TriangulationBase(P0, P1), F(F), LS(P0, P1)
+	PolyBase::PolyBase(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1, const PolyBase::Fundamental& F,const Eigen::MatrixXf& K)
+		: TriangulationBase(P0, P1,K), F(F), LS(P0, P1,K)
 	{}
 
-std::tuple<PolyBase::Intrinsic, PolyBase::Intrinsic, Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1) const{
-    Eigen::Matrix3f K0;
-	Eigen::Matrix3f K1;
-	Eigen::Matrix3f R0;
+std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1, const Eigen::MatrixXf& K) const{
+	//Eigen::Matrix3f R0;
 	Eigen::Matrix3f R1;
 	Eigen::Vector4f T0;
 	Eigen::Vector4f T1;
-
-	//K0 = P0.block<3, 3>(0, 0);
-	//K1 = P1.block<3, 3>(0, 0);
+ 
 	
-	std::cout << P0 << std::endl;
-	Eigen::ColPivHouseholderQR<Eigen::MatrixXf> qr0(P0);
-    K0 = qr0.matrixQR().topLeftCorner<3, 3>().triangularView<Eigen::Upper>();
+	
+	Eigen::HouseholderQR<Eigen::MatrixXf> qr0(P0);
+    //K0 = qr0.matrixQR().topLeftCorner<3, 3>().triangularView<Eigen::Upper>();
+	
+	//Eigen::ColPivHouseholderQR<Eigen::MatrixXf> qr1(P1);
+    //K1 = qr1.matrixQR().topLeftCorner<3, 3>().triangularView<Eigen::Upper>();
+	//K1 = getIntrinsicMatrix(P1);
+	//std::cout << K1 << std::endl;
 
-	std::cout << K0 << std::endl;
-	Eigen::ColPivHouseholderQR<Eigen::MatrixXf> qr1(P1);
-    K1 = qr1.matrixQR().topLeftCorner<3, 3>().triangularView<Eigen::Upper>();
-
-
+ Eigen::HouseholderQR<Eigen::MatrixXf> qr(P0.block<3,3>(0,0).inverse());
+  Eigen::MatrixXf Q0 = qr.householderQ();
+  Eigen::MatrixXf R0 = qr.matrixQR().triangularView<Eigen::Upper>();
+ std::cout << Q0 << std::endl;
+    std::cout << "+++++++++++++++++++++++++++++++++" << std::endl;
+std::cout << Q0.transpose()*-1 << std::endl;
+std::cout << "+++++++++++++++++++++++++++++++++" << std::endl;
 	R0 = P0.block<3, 3>(0, 0);
 	R1 = P1.block<3, 3>(0, 0);
 
 	T0 << P0(0, 3), P0(1, 3), P0(2, 3), P0(2, 3);
 	T1 << P1(0, 3), P1(1, 3), P1(2, 3), P1(2, 3);
+	//std::cout << R0 << std::endl;
+	std::cout << "+++++++++++++++++++++++++" << std::endl;
+	//std::cout << T0 << std::endl;
 
     Eigen::Matrix4f M = Eigen::Matrix4f::Identity();
     M.block<3, 3>(0, 0) = R0.inverse();
@@ -56,20 +64,51 @@ std::tuple<PolyBase::Intrinsic, PolyBase::Intrinsic, Eigen::MatrixXf, Eigen::Mat
     M(2, 3) = (T0(2) / T0(3));
 
     // K0.inv() * P0 * M - should be identity
-    Eigen::Matrix<float, 3, 4> tmp = K1.inverse() * P1 * M;
+    Eigen::Matrix<float, 3, 4> tmp = K.inverse() * P1 * M;
 
     Eigen::Matrix3f R = tmp.block<3, 3>(0, 0);
     Eigen::Vector3f T = tmp.block<3, 1>(0, 3);
-
-    return std::make_tuple(K0, K1, R, T);
+	//std::cout << T << std::endl;
+	std::cout << "+++++++++++++++++++++++++" << std::endl;
+	//std::cout << R << std::endl;
+    return std::make_tuple( R, T);
 }
-	
+/*
+ void PolyBase::getIntrinsicMatrix(const Eigen::MatrixXf &A, Eigen::MatrixXf &Q, Eigen::MatrixXf &R) const
+{
+ 
+    auto sign = [](float value) { return value >= 0 ? 1: -1; };
+    const auto totalRows = A.rows;
+    const auto totalCols = A.cols;
+    R = A.clone();
+    Q = Eigen::MatrixXf::eye ( totalRows, totalRows, A.type() );
+    for ( int col = 0; col < A.cols; ++ col )
+    {
+        Eigen::MatrixXf matAROI = Eigen::MatrixXf ( R, cv::Range ( col, totalRows ), cv::Range ( col, totalCols ) );
+        Eigen::MatrixXf y = matAROI.col ( 0 );
+        auto yNorm = norm ( y );
+        Eigen::MatrixXf e1 = Eigen::MatrixXf::eye ( y.rows, 1, A.type() );
+        Eigen::MatrixXf w = y + sign(y.at<float>(0,0)) *  yNorm * e1;
+        Eigen::MatrixXf v = w / norm( w );
+        Eigen::MatrixXf vT; cv::transpose(v, vT );
+        Eigen::MatrixXf I = Eigen::MatrixXf::eye( matAROI.rows, matAROI.rows, A.type() );
+        Eigen::MatrixXf I_2VVT = I - 2 * v * vT;
+        Eigen::MatrixXf matH = Eigen::MatrixXf::eye ( totalRows, totalRows, A.type() );
+        Eigen::MatrixXf matHROI = Eigen::MatrixXf(matH, cv::Range ( col, totalRows ), cv::Range ( col, totalRows ) );
+        I_2VVT.copyTo ( matHROI );
+        R = matH * R;
+        Q = Q * matH;
+    }
 
-	PolyBase::Fundamental PolyBase::ComputeFundamentalMatrix(const  Eigen::MatrixXf& P0, const  Eigen::MatrixXf& P1) const
+}
+*/
+
+	PolyBase::Fundamental PolyBase::ComputeFundamentalMatrix(const  Eigen::MatrixXf& P0, const  Eigen::MatrixXf& P1, const Eigen::MatrixXf& K) const
 	{
 		Eigen::MatrixXf R, T;
-		Intrinsic K0, K1;
-		std::tie(K0, K1, R, T) = SetOriginToCamera(P0, P1);
+		Intrinsic K0 = K;
+		Intrinsic K1 = K;
+		std::tie(R, T) = SetOriginToCamera(P0, P1,K);
 
 		Eigen::MatrixXf A = Eigen::MatrixXf(K0) * R.transpose() * T;
 

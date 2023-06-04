@@ -24,26 +24,29 @@ namespace Triangulation {
 		
 
 		public:
-		PolyBase(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1);
+		PolyBase(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1, const Eigen::MatrixXf& K);
 			/**
 			 *	\brief	Constructor
 			 *	\param	P0	Camera matrix of the first camera.
 			 *	\param 	P1	Camera matrix of the second camera.
+			  *	\param K
 			 *	\param	F	Fundamental matrix.
 			 */
 
-		explicit PolyBase(const Fundamental& F);
+		explicit PolyBase(const Fundamental& F, const Eigen::MatrixXf& K);
 		/**
 		 *	\brief	Constructor
 		 *	\param	P0	Camera matrix of the first camera.
 		 *	\param 	P1	Camera matrix of the second camera.
+		 *\param 	K
 		 */
 		
-		PolyBase(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1, const Fundamental& F);
+		PolyBase(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1, const Fundamental& F,const Eigen::MatrixXf& K);
 			/**
 			 *	\brief	Triangulates image points.
 			 *	\param	p0	Point in the image of the first camera.
 			 *	\param	p1	Corresponding point in the image of the second camera.
+			  *	\param K
 			 *	\return	Triangulated point.
 			 */
 		Eigen::Vector3f triangulate(const Eigen::Vector2f& p0, const Eigen::Vector2f& p1) const override;
@@ -137,18 +140,20 @@ namespace Triangulation {
 		 *	\return	K0, K1, R and T - camera intrinsics and orientation of second camera in new world coordinates.
 		 */
 
-		std::tuple<Intrinsic, Intrinsic, Eigen::MatrixXf, Eigen::MatrixXf> SetOriginToCamera(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1) const;		/**
-		 *	\brief	Computes fundamental matrix from camera projection matrices.
+		std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> SetOriginToCamera(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1, const Eigen::MatrixXf& K) const;		/**
+		 *	\brief	Computes fundamental matrix 	from camera projection matrices.
 		 *	\param	P0	First camera projection matrix.
 		 *	\param	P1	Second camera projection matrix.
+		  *	\param	K	Second camera projection matrix.
 		 *	\return	Computed fundamental matrix.
 		 */
-		Fundamental ComputeFundamentalMatrix(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1) const;
+		Fundamental ComputeFundamentalMatrix(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1,const Eigen::MatrixXf& K) const;
 		/**
 		 *	\brief	Returns the order of the polynomial with given coefficients (highest non-zero coeffs index).
 		 *	\param	coeffs	Polynomial coefficients.
 		 *	\return	Polynomial order
 		 */
+		Eigen::Matrix3f getIntrinsicMatrix(const Eigen::MatrixXf& P) const;
 		int FindPolynomialOrder(const std::vector<float>& coeffs) const;
 		/**
 		 *	\brief	Returns canonic camera projection matrix of second camera computed from given fundamental matrix.

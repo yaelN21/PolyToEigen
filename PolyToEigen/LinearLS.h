@@ -12,6 +12,7 @@ namespace Triangulation {
 		 *	\brief	Triangulate point using The Direct Linear Transformation Method.
 		 *	\param	p0	Point in the image of the first camera.
 		 *	\param	p1	Corresponding point in the image of the second camera.
+		 *   \param K
 		 *	\return	Triangulated point.
 		 */
 		Eigen::Vector3f triangulate(const Eigen::Vector2f& p0, const Eigen::Vector2f& p1) const override;

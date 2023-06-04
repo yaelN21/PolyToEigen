@@ -2,8 +2,8 @@
 
 namespace Triangulation {
 
-	Triangulation::TriangulationBase::TriangulationBase(const Eigen::MatrixXf& P0,const Eigen::MatrixXf& P1):
-	 P0(P0), P1(P1) {
+	Triangulation::TriangulationBase::TriangulationBase(const Eigen::MatrixXf& P0,const Eigen::MatrixXf& P1,const Eigen::MatrixXf& K):
+	 P0(P0), P1(P1),K(K) {
 		//test
 	}
 

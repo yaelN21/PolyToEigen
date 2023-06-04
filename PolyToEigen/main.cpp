@@ -8,7 +8,8 @@
 #include <vector>
 #include <Eigen/Core>
 
-std::pair<Eigen::MatrixXf, Eigen::MatrixXf> SetupGeneralCameraConfiguration()
+
+std::tuple<Eigen::MatrixXf, Eigen::MatrixXf, Eigen::MatrixXf> SetupGeneralCameraConfiguration()
 {
   float scale =   0.000001;
   
@@ -31,12 +32,12 @@ std::pair<Eigen::MatrixXf, Eigen::MatrixXf> SetupGeneralCameraConfiguration()
     P0 = K * P0;
     P1 = K * P1;
    
-    
-    return std::make_pair(P0, P1);
+   
+    return std::make_tuple(P0, P1,K);
 }
 
 using Eigen::MatrixXf;
-std::pair<Eigen::MatrixXf, Eigen::MatrixXf> SetupGeneralCameraConfiguration();
+std::tuple<Eigen::MatrixXf, Eigen::MatrixXf, Eigen::MatrixXf> SetupGeneralCameraConfiguration();
 
 
 void EvaluateResult(const Eigen::Vector3f& result, const Eigen::Vector3f& expected_result);
@@ -44,15 +45,17 @@ int main(int argc, char *argv[])
 {
   
 	auto result_setup = SetupGeneralCameraConfiguration();
-	const Eigen::MatrixXf P0 =result_setup.first;
-	const Eigen::MatrixXf P1 = result_setup.second;
+ 
+	const Eigen::MatrixXf P0 = std::get<0>(result_setup);
+	const Eigen::MatrixXf P1 = std::get<1>(result_setup);
+  const Eigen::MatrixXf K = std::get<2>(result_setup);
 	//std::tie(P0, P1) = SetupGeneralCameraConfiguration();
 	//std::pair<Eigen::MatrixXf, Eigen::MatrixXf> SetupPair;
 	//SetupPair = SetupGeneralCameraConfiguration();
 	//Eigen::MatrixXf P0 = SetupPair.first;
 	//Eigen::MatrixXf P1  = SetupPair.second;
 	//(P0, P1) = SetupGeneralCameraConfiguration();
-	Triangulation::Poly p(P0, P1);
+	Triangulation::Poly p(P0, P1,K);
     //example of 2 points
    float scale =  0.000001;
     Eigen::Vector2f point1(1004.08, 511.5);
