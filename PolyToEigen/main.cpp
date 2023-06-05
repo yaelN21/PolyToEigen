@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
  
 	const Eigen::MatrixXf P0 = std::get<0>(result_setup);
 	const Eigen::MatrixXf P1 = std::get<1>(result_setup);
-  const Eigen::MatrixXf K = std::get<2>(result_setup);
+    const Eigen::MatrixXf K = std::get<2>(result_setup);
 	//std::tie(P0, P1) = SetupGeneralCameraConfiguration();
 	//std::pair<Eigen::MatrixXf, Eigen::MatrixXf> SetupPair;
 	//SetupPair = SetupGeneralCameraConfiguration();
@@ -57,14 +57,14 @@ int main(int argc, char *argv[])
 	//(P0, P1) = SetupGeneralCameraConfiguration();
 	Triangulation::Poly p(P0, P1,K);
     //example of 2 points
-   float scale =  0.000001;
+    float scale =  0.000001;
     Eigen::Vector2f point1(1004.08, 511.5);
     Eigen::Vector2f point2(274.917, 511.5);
-   point1 *=scale;
-   point2 *=scale;
+    point1 *=scale;
+    point2 *=scale;
 	Eigen::Vector3f result = p.triangulate(point1,point2);
 	Eigen::Vector3f expected_result(500.0, 0.0, 10000.0);
-  expected_result*=scale;
+    expected_result*=scale;
     std::cout << "yay" << std::endl;
 	//EvaluateResult(result, expected_result);
 

@@ -104,7 +104,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\yael1\eigen\eigen-3.4.0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>"C:\Users\shira\OneDrive\Documents\GitHub\eigen-3.4.0"</AdditionalIncludeDirectories>
+      <AdditionalOptions>"/bigobj" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

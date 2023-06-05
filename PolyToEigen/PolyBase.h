@@ -153,7 +153,8 @@ namespace Triangulation {
 		 *	\param	coeffs	Polynomial coefficients.
 		 *	\return	Polynomial order
 		 */
-		Eigen::Matrix3f getIntrinsicMatrix(const Eigen::MatrixXf& P) const;
+
+		void getIntrinsicMatrix(const Eigen::MatrixXf& A, Eigen::MatrixXf& Q, Eigen::MatrixXf& R) const;
 		int FindPolynomialOrder(const std::vector<float>& coeffs) const;
 		/**
 		 *	\brief	Returns canonic camera projection matrix of second camera computed from given fundamental matrix.

@@ -1,6 +1,8 @@
 #include "PolyBase.h"
 #include <Eigen/Dense>
 #include <Eigen/QR>
+#include <Eigen/Core>
+
 
 
 
@@ -40,20 +42,20 @@ std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera(const E
 	//K1 = getIntrinsicMatrix(P1);
 	//std::cout << K1 << std::endl;
 
- Eigen::HouseholderQR<Eigen::MatrixXf> qr(P0.block<3,3>(0,0).inverse());
-  Eigen::MatrixXf Q0 = qr.householderQ();
-  Eigen::MatrixXf R0 = qr.matrixQR().triangularView<Eigen::Upper>();
- std::cout << Q0 << std::endl;
-    std::cout << "+++++++++++++++++++++++++++++++++" << std::endl;
-std::cout << Q0.transpose()*-1 << std::endl;
-std::cout << "+++++++++++++++++++++++++++++++++" << std::endl;
+	Eigen::HouseholderQR<Eigen::MatrixXf> qr(P0.block<3,3>(0,0).inverse());
+	Eigen::MatrixXf Q0 = qr.householderQ();
+	Eigen::MatrixXf R0 = qr.matrixQR().triangularView<Eigen::Upper>();
+	std::cout << Q0 << std::endl;
+    std::cout << "++++++++++++++++++++++++++++++++" << std::endl;
+	std::cout << Q0.transpose()*-1 << std::endl;
+	std::cout << "++++++++++++++++++++++++++++++++" << std::endl;
 	R0 = P0.block<3, 3>(0, 0);
 	R1 = P1.block<3, 3>(0, 0);
-
+	std::cout << Q0 << std::endl;
 	T0 << P0(0, 3), P0(1, 3), P0(2, 3), P0(2, 3);
 	T1 << P1(0, 3), P1(1, 3), P1(2, 3), P1(2, 3);
 	//std::cout << R0 << std::endl;
-	std::cout << "+++++++++++++++++++++++++" << std::endl;
+	std::cout << "++++++++++++++++++++++++" << std::endl;
 	//std::cout << T0 << std::endl;
 
     Eigen::Matrix4f M = Eigen::Matrix4f::Identity();
@@ -102,6 +104,33 @@ std::cout << "+++++++++++++++++++++++++++++++++" << std::endl;
 
 }
 */
+
+	void PolyBase::getIntrinsicMatrix(const Eigen::MatrixXf& A, Eigen::MatrixXf& Q, Eigen::MatrixXf& R)  const
+	{
+		auto sign = [](float value) { return value >= 0 ? 1 : -1; };
+		const auto totalRows = A.rows();
+		const auto totalCols = A.cols();
+		R = A;
+		Q = Eigen::MatrixXf::Identity(totalRows, totalRows);
+		for (int col = 0; col < A.cols(); ++col)
+		{
+			Eigen::MatrixXf matAROI = R.block(col, col, totalRows - col, totalCols - col);
+			Eigen::MatrixXf y = matAROI.col(0);
+			auto yNorm = y.norm();
+			Eigen::MatrixXf e1 = Eigen::MatrixXf::Identity(y.rows(), 1);
+			Eigen::MatrixXf w = y + sign(y(0)) * yNorm * e1;
+			Eigen::MatrixXf v = w.normalized();
+			Eigen::MatrixXf vT = v.transpose();
+			Eigen::MatrixXf I = Eigen::MatrixXf::Identity(matAROI.rows(), matAROI.rows());
+			Eigen::MatrixXf I_2VVT = I - 2 * v * vT;
+			Eigen::MatrixXf matH = Eigen::MatrixXf::Identity(totalRows, totalRows);
+			Eigen::MatrixXf matHROI = matH.block(col, col, totalRows - col, totalRows - col);
+			matHROI = I_2VVT;
+			R = matH * R;
+			Q = Q * matH;
+		}
+	}
+
 
 	PolyBase::Fundamental PolyBase::ComputeFundamentalMatrix(const  Eigen::MatrixXf& P0, const  Eigen::MatrixXf& P1, const Eigen::MatrixXf& K) const
 	{
