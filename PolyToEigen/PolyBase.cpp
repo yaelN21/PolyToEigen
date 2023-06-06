@@ -33,21 +33,27 @@ void PolyBase::decomposeProjectionMatrix(const Eigen::MatrixXf&P, Eigen::MatrixX
 	MatrixXf H_inf3x3 = P.block<3,3>(0,0);
 	MatrixXf H_inf3x3_inv = H_inf3x3.inverse();
 	QRdecomposition(H_inf3x3_inv,Q_qr,R_qr);
-	std::cout << "==============================Decomposing Using My Code==============================" << std::endl;
+	//std::cout << "==============================Decomposing Using My Code==============================" << std::endl;
     K = R_qr.inverse();
 	K = K / K(2, 2);
-    std::cout << "Estimated Camera Matrix\n" << K << std::endl;
+	K = K.triangularView<Eigen::Upper>();
+   //std::cout << "Estimated Camera Matrix\n" << K << std::endl;
     Eigen::MatrixXf rotationMatrix = Q_qr.inverse();
 	rotationMatrix = rotationMatrix * -1;
-    std::cout << "Estimated Camera Rotation\n" << rotationMatrix << std::endl;
-    std::cout << "Estimated Camera Translation" << std::endl;
+   // std::cout << "Estimated Camera Rotation\n" << rotationMatrix << std::endl;
+   // std::cout << "Estimated Camera Translation" << std::endl;
 	Eigen::VectorXf h3x1(3);
 	h3x1 << P(0, 3), P(1, 3), P(2, 3);
-    Eigen::VectorXf translation =  (-rotationMatrix * (-H_inf3x3.inverse() * h3x1));
-	Eigen::Vector4f translation4 = translation.homogeneous();
-    std::cout << translation4 << std::endl;
+
+
+    //t=-R*C, Q.inv()=R
+    Eigen::VectorXf translation = (-Q_qr.inverse() * (-H_inf3x3.inverse() * h3x1));
+
+	//Eigen::Vector4f translation4 = translation.homogeneous();
+	//translation4 /= translation4[3];
+   // std::cout << translation << std::endl;
 	R= rotationMatrix;
-	T = translation4;
+	T = translation;
 
 }
 
@@ -65,20 +71,21 @@ decomposeProjectionMatrix(P1,K1,R1,T1);
 
 Eigen::Matrix<float, 4, 4> M = Eigen::Matrix<float, 4, 4>::Identity();
 M.block<3, 3>(0, 0) = R0.inverse();
-M(0, 3) = T0(0) / T0(3);
-M(1, 3) = T0(1) / T0(3);
-M(2, 3) = T0(2) / T0(3);
+M(0, 3) = T0(0) ;
+M(1, 3) = T0(1) ;
+M(2, 3) = T0(2);
 
-
+//std::cout << "++++++++Final M+++++++++++++++++" << std::endl;
+	//std::cout << M << std::endl;
 Eigen::MatrixXf tmp = K1.inverse() * P1 * M;
 
 Eigen::MatrixXf R = tmp.block<3, 3>(0, 0);
 Eigen::MatrixXf T = tmp.block<3, 1>(0, 3);
-std::cout << "++++++++Final R+++++++++++++++++" << std::endl;
-	std::cout << R << std::endl;
-	std::cout << "++++++++Final T+++++++++++++++++" << std::endl;
-	std::cout << T << std::endl;
-	// K0.inv() * P0 * M  - should be identity
+	//std::cout << "++++++++Final R+++++++++++++++++" << std::endl;
+	//std::cout << R << std::endl;
+	//std::cout << "++++++++Final T+++++++++++++++++" << std::endl;
+	//std::cout << T << std::endl;
+	
 
  return std::make_tuple(K0, K1, R, T);
 
@@ -139,15 +146,14 @@ std::cout << "++++++++Final R+++++++++++++++++" << std::endl;
 		C(2, 0) = -A(1);
 		C(2, 1) = A(0);
 
-		return K1.transpose() * R * K0.transpose() * C;
+		return K1.inverse().transpose() * R * K0.transpose() * C;
+
 	}
 
 	Eigen::Vector3f PolyBase::triangulate(const Eigen::Vector2f& p0, const Eigen::Vector2f& p1) const
 	{
 		Eigen::Vector2f x0, x1;
 		std::tie(x0, x1) = ComputeCorrectedCorrespondences(p0, p1);
-		//std::cout << x0 << std::endl;
-		//std::cout << x1 << std::endl;
 		return LS.triangulate(x0, x1);
 	}
 
@@ -155,11 +161,13 @@ std::cout << "++++++++Final R+++++++++++++++++" << std::endl;
 	{
 		Eigen::MatrixXf T0 = TranslateToOrigin(p0);
 		Eigen::MatrixXf T1 = TranslateToOrigin(p1);
+       //std::cout << F << std::endl;
+	  //std::cout << "+++++" << std::endl;
 
 		Eigen::MatrixXf f = T1.transpose() * Eigen::MatrixXf(F) * T0;
-
-		Epipole e0 = ComputeRightEpipole(f);
-		Epipole e1 = ComputeLeftEpipole(f);
+        //std::cout << f << std::endl;
+		Epipole e0 = ComputeRightEpipole(f);	
+			Epipole e1 = ComputeLeftEpipole(f);
 
 		Eigen::MatrixXf R0 = FormRotationMatrix(e0);
 		Eigen::MatrixXf R1 = FormRotationMatrix(e1);
@@ -187,6 +195,7 @@ std::cout << "++++++++Final R+++++++++++++++++" << std::endl;
 		Eigen::MatrixXf result = Eigen::MatrixXf::Identity(3, 3);
 		result(0, 2) = p.x();
 		result(1, 2) = p.y();
+		
 		return result;
 	}
 
@@ -254,6 +263,7 @@ std::vector<Eigen::Vector2f> solvePoly(const std::vector<float>& coeffs) {
 
     // Solve the eigenvalue problem
     Eigen::EigenSolver<Eigen::MatrixXf> eigensolver(A);
+	
     if (eigensolver.info() != Eigen::Success) {
         std::cerr << "Failed to solve the polynomial equation!" << std::endl;
         return std::vector<Eigen::Vector2f>();
