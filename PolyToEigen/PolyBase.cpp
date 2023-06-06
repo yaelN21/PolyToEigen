@@ -27,11 +27,35 @@ namespace Triangulation {
 	{}
 
 std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1, const Eigen::MatrixXf& K) const{
-	Eigen::MatrixXf R_in;
-	Eigen::MatrixXf Q_in;
-	getIntrinsicMatrix(P0,Q_in,R_in);
-	std::cout << "test" <<std::endl;
+	MatrixXf Q_in;
+	
+	MatrixXf A = P0.block<3,3>(0,0).inverse();
+	MatrixXf R_in = P0.block<3,3>(0,0).inverse();
+	getIntrinsicMatrix(A,Q_in,R_in);
 
+	std::cout << "==============================Decomposing Using My Code==============================" << std::endl;
+
+    Eigen::MatrixXf Kk = R_in.inverse();
+    std::cout << "Estimated Camera Matrix\n" << Kk / K(2, 2) << std::endl;
+
+    Eigen::MatrixXf rotationMatrix = Q_in.inverse();
+    std::cout << "Estimated Camera Rotation\n" << rotationMatrix * -1 << std::endl;
+
+    std::cout << "Estimated Camera Translation" << std::endl;
+    Eigen::VectorXf h3x1; // Assuming this vector is initialized appropriately
+    Eigen::VectorXf translation = -1 * (-Q_in.inverse() * (-A * h3x1));
+    std::cout << translation << std::endl;
+
+
+
+	std::cout << "+++A++++" <<std::endl;
+	std::cout <<A <<std::endl;
+	std::cout << "+++R++++" <<std::endl;
+	std::cout <<R_in <<std::endl;
+	std::cout << "++++Q+++" <<std::endl;
+	std::cout <<Q_in <<std::endl;
+	std::cout << "++++++++" <<std::endl;
+	std::cout << "test" <<std::endl;
 	//Eigen::Matrix3f R0;
 	Eigen::Matrix3f R1;
 	Eigen::Vector4f T0;
@@ -48,13 +72,12 @@ std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera(const E
     //K1 = qr1.matrixQR().topLeftCorner<3, 3>().triangularView<Eigen::Upper>();
 	//K1 = getIntrinsicMatrix(P1);
 	//std::cout << K1 << std::endl;
-
 	Eigen::HouseholderQR<Eigen::MatrixXf> qr(P0.block<3,3>(0,0).inverse());
 	Eigen::MatrixXf Q0 = qr.householderQ();
 	Eigen::MatrixXf R0 = qr.matrixQR().triangularView<Eigen::Upper>();
-	std::cout << Q0 << std::endl;
-    //std::cout << "++++++++++++++++++++++++++++++++" << std::endl;
-	//std::cout << Q0.transpose()*-1 << std::endl;
+	//std::cout << Q0 << std::endl;
+    std::cout << "+++++++++++++Q0++++++++++++++" << std::endl;
+	std::cout << Q0.transpose()*-1 << std::endl;
 	///std::cout << "++++++++++++++++++++++++++++++++" << std::endl;
 	R0 = P0.block<3, 3>(0, 0);
 	R1 = P1.block<3, 3>(0, 0);
@@ -86,10 +109,13 @@ std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera(const E
 
 	void PolyBase::getIntrinsicMatrix(const Eigen::MatrixXf& A, Eigen::MatrixXf& Q, Eigen::MatrixXf& R)  const
 	{
+		 //assert(A.channels() == 1);
+    	assert(A.rows() >= A.cols());
+   		 std::cout << "Assertions passed successfully." << std::endl;
 		auto sign = [](float value) { return value >= 0 ? 1 : -1; };
 		const auto totalRows = A.rows();
 		const auto totalCols = A.cols();
-		R = A;
+		//R = A;
 		Q = Eigen::MatrixXf::Identity(totalRows, totalRows);
 		for (int col = 0; col < A.cols(); ++col)
 		{
@@ -97,7 +123,9 @@ std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera(const E
 			Eigen::MatrixXf y = matAROI.col(0);
 			auto yNorm = y.norm();
 			Eigen::MatrixXf e1 = Eigen::MatrixXf::Identity(y.rows(), 1);
-			Eigen::MatrixXf w = y + sign(y(0)) * yNorm * e1;
+			//Eigen::MatrixXf tmp1 =  yNorm * e1;
+			Eigen::MatrixXf tmp1 = sign(y(0)) * yNorm * e1;
+			Eigen::MatrixXf w = y +tmp1 ;
 			Eigen::MatrixXf v = w.normalized();
 			Eigen::MatrixXf vT = v.transpose();
 			Eigen::MatrixXf I = Eigen::MatrixXf::Identity(matAROI.rows(), matAROI.rows());
@@ -105,16 +133,10 @@ std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera(const E
 			Eigen::MatrixXf matH = Eigen::MatrixXf::Identity(totalRows, totalRows);
 			Eigen::MatrixXf matHROI = matH.block(col, col, totalRows - col, totalRows - col);
 			matHROI = I_2VVT;
+			matH.block(col, col, matHROI.rows(), matHROI.cols()) = matHROI;
 			R = matH * R;
 			Q = Q * matH;
 		}
-		std::cout << "+++++++++++++R++++++++++++++++" << std::endl;
-		std::cout << R.transpose()*-1 << std::endl;
-		std::cout << "++++++++++++++++++++++++++++++++" << std::endl;
-		std::cout << "+++++++++++++Q++++++++++++++++" << std::endl;
-		std::cout << Q.transpose()*-1 << std::endl;
-		std::cout << "++++++++++++++++++++++++++++++++" << std::endl;
-
 
 	}
 
