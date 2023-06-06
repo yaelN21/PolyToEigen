@@ -27,11 +27,18 @@ namespace Triangulation {
 	{}
 
 std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1, const Eigen::MatrixXf& K) const{
+	Eigen::MatrixXf R_in;
+	Eigen::MatrixXf Q_in;
+	getIntrinsicMatrix(P0,Q_in,R_in);
+	std::cout << "test" <<std::endl;
+
 	//Eigen::Matrix3f R0;
 	Eigen::Matrix3f R1;
 	Eigen::Vector4f T0;
 	Eigen::Vector4f T1;
- 
+
+
+	
 	
 	
 	Eigen::HouseholderQR<Eigen::MatrixXf> qr0(P0);
@@ -46,9 +53,9 @@ std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera(const E
 	Eigen::MatrixXf Q0 = qr.householderQ();
 	Eigen::MatrixXf R0 = qr.matrixQR().triangularView<Eigen::Upper>();
 	std::cout << Q0 << std::endl;
-    std::cout << "++++++++++++++++++++++++++++++++" << std::endl;
-	std::cout << Q0.transpose()*-1 << std::endl;
-	std::cout << "++++++++++++++++++++++++++++++++" << std::endl;
+    //std::cout << "++++++++++++++++++++++++++++++++" << std::endl;
+	//std::cout << Q0.transpose()*-1 << std::endl;
+	///std::cout << "++++++++++++++++++++++++++++++++" << std::endl;
 	R0 = P0.block<3, 3>(0, 0);
 	R1 = P1.block<3, 3>(0, 0);
 	std::cout << Q0 << std::endl;
@@ -75,35 +82,7 @@ std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera(const E
 	//std::cout << R << std::endl;
     return std::make_tuple( R, T);
 }
-/*
- void PolyBase::getIntrinsicMatrix(const Eigen::MatrixXf &A, Eigen::MatrixXf &Q, Eigen::MatrixXf &R) const
-{
- 
-    auto sign = [](float value) { return value >= 0 ? 1: -1; };
-    const auto totalRows = A.rows;
-    const auto totalCols = A.cols;
-    R = A.clone();
-    Q = Eigen::MatrixXf::eye ( totalRows, totalRows, A.type() );
-    for ( int col = 0; col < A.cols; ++ col )
-    {
-        Eigen::MatrixXf matAROI = Eigen::MatrixXf ( R, cv::Range ( col, totalRows ), cv::Range ( col, totalCols ) );
-        Eigen::MatrixXf y = matAROI.col ( 0 );
-        auto yNorm = norm ( y );
-        Eigen::MatrixXf e1 = Eigen::MatrixXf::eye ( y.rows, 1, A.type() );
-        Eigen::MatrixXf w = y + sign(y.at<float>(0,0)) *  yNorm * e1;
-        Eigen::MatrixXf v = w / norm( w );
-        Eigen::MatrixXf vT; cv::transpose(v, vT );
-        Eigen::MatrixXf I = Eigen::MatrixXf::eye( matAROI.rows, matAROI.rows, A.type() );
-        Eigen::MatrixXf I_2VVT = I - 2 * v * vT;
-        Eigen::MatrixXf matH = Eigen::MatrixXf::eye ( totalRows, totalRows, A.type() );
-        Eigen::MatrixXf matHROI = Eigen::MatrixXf(matH, cv::Range ( col, totalRows ), cv::Range ( col, totalRows ) );
-        I_2VVT.copyTo ( matHROI );
-        R = matH * R;
-        Q = Q * matH;
-    }
 
-}
-*/
 
 	void PolyBase::getIntrinsicMatrix(const Eigen::MatrixXf& A, Eigen::MatrixXf& Q, Eigen::MatrixXf& R)  const
 	{
@@ -129,6 +108,14 @@ std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera(const E
 			R = matH * R;
 			Q = Q * matH;
 		}
+		std::cout << "+++++++++++++R++++++++++++++++" << std::endl;
+		std::cout << R.transpose()*-1 << std::endl;
+		std::cout << "++++++++++++++++++++++++++++++++" << std::endl;
+		std::cout << "+++++++++++++Q++++++++++++++++" << std::endl;
+		std::cout << Q.transpose()*-1 << std::endl;
+		std::cout << "++++++++++++++++++++++++++++++++" << std::endl;
+
+
 	}
 
 
