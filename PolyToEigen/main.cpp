@@ -9,10 +9,10 @@
 #include <Eigen/Core>
 
 
-std::tuple<Eigen::MatrixXf, Eigen::MatrixXf, Eigen::MatrixXf> SetupGeneralCameraConfiguration()
+std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> SetupGeneralCameraConfiguration()
 {
-  float scale =   0.000001;
-  
+  //float scale =   0.000001;
+float scale =  1;
     Eigen::MatrixXf P0(3, 4);
     Eigen::MatrixXf P1(3, 4);
     Eigen::MatrixXf K(3, 3);
@@ -33,11 +33,11 @@ std::tuple<Eigen::MatrixXf, Eigen::MatrixXf, Eigen::MatrixXf> SetupGeneralCamera
     P1 = K * P1;
    
    
-    return std::make_tuple(P0, P1,K);
+    return std::make_tuple(P0, P1);
 }
 
 using Eigen::MatrixXf;
-std::tuple<Eigen::MatrixXf, Eigen::MatrixXf, Eigen::MatrixXf> SetupGeneralCameraConfiguration();
+std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> SetupGeneralCameraConfiguration();
 
 
 void EvaluateResult(const Eigen::Vector3f& result, const Eigen::Vector3f& expected_result);
@@ -48,34 +48,43 @@ int main(int argc, char *argv[])
  
 	const Eigen::MatrixXf P0 = std::get<0>(result_setup);
 	const Eigen::MatrixXf P1 = std::get<1>(result_setup);
-    const Eigen::MatrixXf K = std::get<2>(result_setup);
-	//std::tie(P0, P1) = SetupGeneralCameraConfiguration();
-	//std::pair<Eigen::MatrixXf, Eigen::MatrixXf> SetupPair;
-	//SetupPair = SetupGeneralCameraConfiguration();
-	//Eigen::MatrixXf P0 = SetupPair.first;
-	//Eigen::MatrixXf P1  = SetupPair.second;
-	//(P0, P1) = SetupGeneralCameraConfiguration();
-	Triangulation::Poly p(P0, P1,K);
-    //example of 2 points
-    float scale =  0.000001;
-    Eigen::Vector2f point1(1004.08, 511.5);
-    Eigen::Vector2f point2(274.917, 511.5);
+	Triangulation::Poly p(P0, P1);
+    //example of 2 pointsexpected_result
+    //float scale =  0.000001;
+    float scale =  1;
+    Eigen::Vector2f point1(146, 642.288);
+    Eigen::Vector2f point2(1137.31, 385.201);
     point1 *=scale;
     point2 *=scale;
 	Eigen::Vector3f result = p.triangulate(point1,point2);
-	Eigen::Vector3f expected_result(500.0, 0.0, 10000.0);
+	Eigen::Vector3f expected_result(0.0, 100.0, 10000.0);
     expected_result*=scale;
     std::cout << "yay" << std::endl;
-	//EvaluateResult(result, expected_result);
+	EvaluateResult(result,expected_result);
 
 }
-
+void assertNear(const Eigen::Vector3f& distance, float tolerance)
+{
+    float norm = distance.norm();
+    if (norm > tolerance)
+    {
+        std::cerr << "Distance is not within tolerance. Norm: " << norm << ", Tolerance: " << tolerance << std::endl;
+        // You can choose to throw an exception or exit the program here
+        // throw std::runtime_error("Distance is not within tolerance");
+        // std::exit(EXIT_FAILURE);
+    }
+    else
+    {
+        std::cout << "Distance is within tolerance. Norm: " << norm << ", Tolerance: " << tolerance << std::endl;
+    }
+}
 
 void EvaluateResult(const Eigen::Vector3f& result, const Eigen::Vector3f& expected_result)
-{   float expect_norm=  expected_result.norm();
-	float tolerance = expect_norm * 0.001;
+{   float max_percentage_error = 0.001;
+    float tolerance=  expected_result.norm()*max_percentage_error;
     Eigen::Vector3f dist = result - expected_result;
 	float distance = dist.norm();
-    std::cout  << distance << tolerance <<std::endl;
-	//EXPECT_NEAR(distance, 0.0, tolerance);
+	 assertNear(dist, tolerance);
+     
 }
+
