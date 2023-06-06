@@ -28,24 +28,19 @@ namespace Triangulation {
 
 std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1, const Eigen::MatrixXf& K) const{
 	MatrixXf Q_in;
-	
-	MatrixXf A = P0.block<3,3>(0,0).inverse();
-	MatrixXf R_in = P0.block<3,3>(0,0).inverse();
-	getIntrinsicMatrix(A,Q_in,R_in);
-
+	MatrixXf R_in;
+	MatrixXf H_inf3x3 = P0.block<3,3>(0,0);
+	MatrixXf H_inf3x3_inv = H_inf3x3.inverse();
+	getIntrinsicMatrix(H_inf3x3_inv,Q_in,R_in);
 	std::cout << "==============================Decomposing Using My Code==============================" << std::endl;
-
     Eigen::MatrixXf Kk = R_in.inverse();
     std::cout << "Estimated Camera Matrix\n" << Kk / K(2, 2) << std::endl;
     Eigen::MatrixXf rotationMatrix = Q_in.inverse();
     std::cout << "Estimated Camera Rotation\n" << rotationMatrix * -1 << std::endl;
-
     std::cout << "Estimated Camera Translation" << std::endl;
-  
-	
 	Eigen::VectorXf h3x1(3);
 	h3x1 << P0(0, 3), P0(1, 3), P0(2, 3);
-    Eigen::VectorXf translation = -1 * (-Q_in.inverse() * (-A * h3x1));
+    Eigen::VectorXf translation = -1 * (-Q_in.inverse() * (-H_inf3x3.inverse() * h3x1));
     std::cout << translation << std::endl;
 
 
@@ -101,7 +96,7 @@ std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera(const E
 		auto sign = [](float value) { return value >= 0 ? 1 : -1; };
 		const auto totalRows = A.rows();
 		const auto totalCols = A.cols();
-		//R = A;
+		R = A;
 		Q = Eigen::MatrixXf::Identity(totalRows, totalRows);
 		for (int col = 0; col < A.cols(); ++col)
 		{
