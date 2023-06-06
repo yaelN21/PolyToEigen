@@ -37,72 +37,58 @@ std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera(const E
 
     Eigen::MatrixXf Kk = R_in.inverse();
     std::cout << "Estimated Camera Matrix\n" << Kk / K(2, 2) << std::endl;
-
     Eigen::MatrixXf rotationMatrix = Q_in.inverse();
     std::cout << "Estimated Camera Rotation\n" << rotationMatrix * -1 << std::endl;
 
     std::cout << "Estimated Camera Translation" << std::endl;
-    Eigen::VectorXf h3x1; // Assuming this vector is initialized appropriately
+  
+	
+	Eigen::VectorXf h3x1(3);
+	h3x1 << P0(0, 3), P0(1, 3), P0(2, 3);
     Eigen::VectorXf translation = -1 * (-Q_in.inverse() * (-A * h3x1));
     std::cout << translation << std::endl;
 
 
-
-	std::cout << "+++A++++" <<std::endl;
-	std::cout <<A <<std::endl;
-	std::cout << "+++R++++" <<std::endl;
-	std::cout <<R_in <<std::endl;
-	std::cout << "++++Q+++" <<std::endl;
-	std::cout <<Q_in <<std::endl;
-	std::cout << "++++++++" <<std::endl;
-	std::cout << "test" <<std::endl;
-	//Eigen::Matrix3f R0;
-	Eigen::Matrix3f R1;
-	Eigen::Vector4f T0;
-	Eigen::Vector4f T1;
-
-
-	
-	
-	
-	Eigen::HouseholderQR<Eigen::MatrixXf> qr0(P0);
+	//Eigen::HouseholderQR<Eigen::MatrixXf> qr0(P0);
     //K0 = qr0.matrixQR().topLeftCorner<3, 3>().triangularView<Eigen::Upper>();
 	
 	//Eigen::ColPivHouseholderQR<Eigen::MatrixXf> qr1(P1);
     //K1 = qr1.matrixQR().topLeftCorner<3, 3>().triangularView<Eigen::Upper>();
 	//K1 = getIntrinsicMatrix(P1);
 	//std::cout << K1 << std::endl;
-	Eigen::HouseholderQR<Eigen::MatrixXf> qr(P0.block<3,3>(0,0).inverse());
-	Eigen::MatrixXf Q0 = qr.householderQ();
-	Eigen::MatrixXf R0 = qr.matrixQR().triangularView<Eigen::Upper>();
+	//Eigen::HouseholderQR<Eigen::MatrixXf> qr(P0.block<3,3>(0,0).inverse());
+	//Eigen::MatrixXf Q0 = qr.householderQ();
+	//Eigen::MatrixXf R0 = qr.matrixQR().triangularView<Eigen::Upper>();
 	//std::cout << Q0 << std::endl;
-    std::cout << "+++++++++++++Q0++++++++++++++" << std::endl;
-	std::cout << Q0.transpose()*-1 << std::endl;
+    //std::cout << "+++++++++++++Q0++++++++++++++" << std::endl;
+	//std::cout << Q0.transpose()*-1 << std::endl;
 	///std::cout << "++++++++++++++++++++++++++++++++" << std::endl;
-	R0 = P0.block<3, 3>(0, 0);
-	R1 = P1.block<3, 3>(0, 0);
-	std::cout << Q0 << std::endl;
-	T0 << P0(0, 3), P0(1, 3), P0(2, 3), P0(2, 3);
-	T1 << P1(0, 3), P1(1, 3), P1(2, 3), P1(2, 3);
+	//R0 = P0.block<3, 3>(0, 0);
+	//R1 = P1.block<3, 3>(0, 0);
+	//std::cout << Q0 << std::endl;
+	//T0 << P0(0, 3), P0(1, 3), P0(2, 3), P0(2, 3);
+	//T1 << P1(0, 3), P1(1, 3), P1(2, 3), P1(2, 3);
 	//std::cout << R0 << std::endl;
-	std::cout << "++++++++++++++++++++++++" << std::endl;
+	//std::cout << "++++++++++++++++++++++++" << std::endl;
 	//std::cout << T0 << std::endl;
 
-    Eigen::Matrix4f M = Eigen::Matrix4f::Identity();
-    M.block<3, 3>(0, 0) = R0.inverse();
+    //Eigen::Matrix4f M = Eigen::Matrix4f::Identity();
+    //M.block<3, 3>(0, 0) = R0.inverse();
 
-    M(0, 3) = (T0(0) /T0(3));
-    M(1, 3) = (T0(1) / T0(3));
-    M(2, 3) = (T0(2) / T0(3));
+    //M(0, 3) = (T0(0) /T0(3));
+    //M(1, 3) = (T0(1) / T0(3));
+    //M(2, 3) = (T0(2) / T0(3));
 
     // K0.inv() * P0 * M - should be identity
-    Eigen::Matrix<float, 3, 4> tmp = K.inverse() * P1 * M;
+    //Eigen::Matrix<float, 3, 4> tmp = K.inverse() * P1 * M;
 
-    Eigen::Matrix3f R = tmp.block<3, 3>(0, 0);
-    Eigen::Vector3f T = tmp.block<3, 1>(0, 3);
+    //Eigen::Matrix3f R = tmp.block<3, 3>(0, 0);
+   //Eigen::Vector3f T = tmp.block<3, 1>(0, 3);
 	//std::cout << T << std::endl;
-	std::cout << "+++++++++++++++++++++++++" << std::endl;
+	//std::cout << "+++++++++++++++++++++++++" << std::endl;
 	//std::cout << R << std::endl;
+	Eigen::Matrix3f R;
+	Eigen::Matrix3f T;
     return std::make_tuple( R, T);
 }
 
