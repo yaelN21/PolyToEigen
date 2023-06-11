@@ -9,7 +9,7 @@
 #include <Eigen/Core>
 
 
-std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> SetupGeneralCameraConfiguration()
+std::pair<Eigen::MatrixXf, Eigen::MatrixXf> SetupGeneralCameraConfiguration()
 {
   //float scale =   0.000001;
     Eigen::MatrixXf P0(3, 4);
@@ -86,7 +86,7 @@ std::pair<Eigen::MatrixXf, Eigen::MatrixXf> SetupSecondCameraRotatedRightConfigu
 }
 
 using Eigen::MatrixXf;
-std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> SetupGeneralCameraConfiguration();
+std::pair<Eigen::MatrixXf, Eigen::MatrixXf> SetupGeneralCameraConfiguration();
 std::pair<Eigen::MatrixXf, Eigen::MatrixXf> SetupSecondCameraRotatedRightConfiguration();
 std::pair<Eigen::MatrixXf, Eigen::MatrixXf> SetupSecondCameraRotatedLeftConfiguration();
 void EvaluateResult(const Eigen::Vector3f& result, const Eigen::Vector3f& expected_result);
