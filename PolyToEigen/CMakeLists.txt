@@ -7,8 +7,8 @@ find_package(OpenCV REQUIRED)
 enable_testing()
 
 
-set (HEADERS "Poly.h" "PolyAbs.h" "PolyBase.h" "TriangulationBase.h" "LinearLS.h")
-set (SOURCES "Poly.cpp" "PolyAbs.cpp" "PolyBase.cpp" "TriangulationBase.cpp" "LinearLS.cpp")
+set (HEADERS "Poly.h" "PolyBase.h" "TriangulationBase.h" "LinearLS.h")
+set (SOURCES "Poly.cpp" "PolyBase.cpp" "TriangulationBase.cpp" "LinearLS.cpp")
 
 add_executable(Triangulation main.cpp ${SOURCES})
 
