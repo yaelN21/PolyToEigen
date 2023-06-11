@@ -5,16 +5,14 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64 -pedantic -Wextra -Wconversion -ma
 find_package(OpenCV REQUIRED)
 
 enable_testing()
-find_package(GTest REQUIRED)
-include_directories(${GTEST_INCLUDE_DIRS})
 
-set (HEADERS "Poly.h" "PolyAbs.h" "PolyBase.h" "TriangulationBase.h" "LinearLS.h" "IterativeLS.h" "LinearEigen.h" "IterativeEigen.h")
-set (SOURCES "Poly.cpp" "PolyAbs.cpp" "PolyBase.cpp" "TriangulationBase.cpp" "LinearLS.cpp" "IterativeLS.cpp" "LinearEigen.cpp" "IterativeEigen.cpp")
+
+set (HEADERS "Poly.h" "PolyAbs.h" "PolyBase.h" "TriangulationBase.h" "LinearLS.h")
+set (SOURCES "Poly.cpp" "PolyAbs.cpp" "PolyBase.cpp" "TriangulationBase.cpp" "LinearLS.cpp")
 
 add_executable(Triangulation main.cpp ${SOURCES})
 
 target_link_libraries(Triangulation ${OpenCV_LIBS})
-target_link_libraries(Triangulation ${GTEST_LIBRARIES} pthread gcov)
 
 add_test(AllTests Triangulation)
 
