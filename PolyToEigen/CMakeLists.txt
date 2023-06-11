@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.2.2)
 project(Triangulation)
 set (CMAKE_CXX_STANDARD 14)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -pedantic -Wextra -Wconversion -march=native -Wall -I. -ftest-coverage -fprofile-arcs")
-find_package(OpenCV REQUIRED)
+find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
 enable_testing()
 
@@ -12,7 +12,7 @@ set (SOURCES "Poly.cpp" "PolyBase.cpp" "TriangulationBase.cpp" "LinearLS.cpp")
 
 add_executable(Triangulation main.cpp ${SOURCES})
 
-target_link_libraries(Triangulation ${OpenCV_LIBS})
+target_link_libraries(Triangulation  Eigen3::Eigen)
 
 add_test(AllTests Triangulation)
 
