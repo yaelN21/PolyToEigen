@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.2.2)
 project(Triangulation)
 set (CMAKE_CXX_STANDARD 14)
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64 -pedantic -Wextra -Wconversion -march=native -Wall -I. -ftest-coverage -fprofile-arcs")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -pedantic -Wextra -Wconversion -march=native -Wall -I. -ftest-coverage -fprofile-arcs")
 find_package(OpenCV REQUIRED)
 
 enable_testing()
