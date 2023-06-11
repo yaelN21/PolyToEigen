@@ -32,7 +32,7 @@ std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> SetupGeneralCameraConfiguration()
     P1 = K * P1;
    
    
-    return std::make_tuple(P0, P1);
+    return std::make_pair(P0, P1);
 }
 
 
