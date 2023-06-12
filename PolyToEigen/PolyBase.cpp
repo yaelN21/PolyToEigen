@@ -67,10 +67,12 @@ Eigen::MatrixXf T0;
 Eigen::MatrixXf T1;
 decomposeProjectionMatrix(P0,K0,R0,T0);
 decomposeProjectionMatrix(P1,K1,R1,T1);
+	/*
 std::cout << "++++++++Final R0+++++++++++++++++" << std::endl;
 	std::cout << R0 << std::endl;
 	std::cout << "++++++++Final T0+++++++++++++++++" << std::endl;
 	std::cout << T0 << std::endl;
+	*/
 	
 
 Eigen::Matrix<float, 4, 4> M = Eigen::Matrix<float, 4, 4>::Identity();
@@ -85,10 +87,12 @@ Eigen::MatrixXf tmp = K1.inverse() * P1 * M;
 
 Eigen::MatrixXf R = tmp.block<3, 3>(0, 0);
 Eigen::MatrixXf T = tmp.block<3, 1>(0, 3);
+	/*
 	std::cout << "++++++++Final R+++++++++++++++++" << std::endl;
 	std::cout << R << std::endl;
 	std::cout << "++++++++Final T+++++++++++++++++" << std::endl;
 	std::cout << T << std::endl;
+	*/
 	
 
  return std::make_tuple(K0, K1, R, T);
@@ -259,7 +263,11 @@ std::vector<Eigen::Vector2f> solvePoly(const std::vector<float>& coeffs) {
 
     // Construct the companion matrix
     for (int i = 0; i < degree; i++) {
-        A(i, 0) = -coeffs[i + 1] / coeffs[0];
+        if (coeffs[0] != 0) {
+            A(i, 0) = -coeffs[i + 1] / coeffs[0];
+        } else {
+            A(i, 0) = 0;
+        }
         if (i > 0) {
             A(i, i) = 1;
         }
