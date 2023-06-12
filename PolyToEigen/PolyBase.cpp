@@ -262,6 +262,7 @@ std::vector<Eigen::Vector2f> solvePoly(const std::vector<float>& coeffs) {
     Eigen::VectorXf b(degree);
 
     // Construct the companion matrix
+	std::cout << "new solver" << std::endl;
     for (int i = 0; i < degree; i++) {
         if (coeffs[0] != 0) {
             A(i, 0) = -coeffs[i + 1] / coeffs[0];
