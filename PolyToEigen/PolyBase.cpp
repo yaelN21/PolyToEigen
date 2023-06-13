@@ -162,6 +162,10 @@ Eigen::MatrixXf T = tmp.block<3, 1>(0, 3);
 	{
 		Eigen::Vector2f x0, x1;
 		std::tie(x0, x1) = ComputeCorrectedCorrespondences(p0, p1);
+		if (x0.isZero() || x1.isZero())
+		{
+				 return Eigen::Vector3f();
+		}
 		return LS.triangulate(x0, x1);
 	}
 
@@ -184,6 +188,11 @@ Eigen::MatrixXf T = tmp.block<3, 1>(0, 3);
 
 		PolyParams params = std::make_tuple(f(1, 1), f(1, 2), f(2, 1), f(2, 2), e0.z(), e1.z());
 		Roots roots = Solve(params);
+		if (roots.empty())
+		{
+			   Eigen::Vector2f zeroVector(0.0f, 0.0f);
+			    return std::make_pair(zeroVector, zeroVector);
+		}
 
 		float t = EvaluateRoots(roots, params);
 		Line l0, l1;
@@ -264,11 +273,7 @@ std::vector<Eigen::Vector2f> solvePoly(const std::vector<float>& coeffs) {
     // Construct the companion matrix
 	std::cout << "new solver" << std::endl;
     for (int i = 0; i < degree; i++) {
-        if (coeffs[0] != 0) {
             A(i, 0) = -coeffs[i + 1] / coeffs[0];
-        } else {
-            A(i, 0) = 0;
-        }
         if (i > 0) {
             A(i, i) = 1;
         }
@@ -295,6 +300,7 @@ std::vector<Eigen::Vector2f> solvePoly(const std::vector<float>& coeffs) {
 
 PolyBase::Roots PolyBase::Solve(const PolyParams& params) const
 {
+	
     std::vector<float> coeffs = PreparePolyCoeffs(params);
     if (coeffs.size() <= 1)
     {
