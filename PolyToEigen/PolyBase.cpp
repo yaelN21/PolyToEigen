@@ -2,7 +2,7 @@
 #include <Eigen/Dense>
 #include <Eigen/QR>
 #include <Eigen/Core>
-
+#include <opencv2/opencv.hpp>
 
 
 
@@ -59,27 +59,41 @@ void PolyBase::decomposeProjectionMatrix(const Eigen::MatrixXf&P, Eigen::MatrixX
 
 
 std::tuple<Eigen::MatrixXf, Eigen::MatrixXf,Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1) const{
-Eigen::MatrixXf K0;
-Eigen::MatrixXf K1;
-Eigen::MatrixXf R0;
-Eigen::MatrixXf  R1;
-Eigen::MatrixXf T0;
-Eigen::MatrixXf T1;
-decomposeProjectionMatrix(P0,K0,R0,T0);
-decomposeProjectionMatrix(P1,K1,R1,T1);
-	/*
-std::cout << "++++++++Final R0+++++++++++++++++" << std::endl;
-	std::cout << R0 << std::endl;
-	std::cout << "++++++++Final T0+++++++++++++++++" << std::endl;
-	std::cout << T0 << std::endl;
-	*/
-	
 
+
+cv::Mat cvProjectionMatrix0(3, 4, CV_32F);
+cv::Mat cvProjectionMatrix1(3, 4, CV_32F);
+ Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(
+        cvProjectionMatrix0.ptr<float>(), cvProjectionMatrix0.rows, cvProjectionMatrix0.cols) = P0;
+
+    Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(
+        cvProjectionMatrix1.ptr<float>(), cvProjectionMatrix1.rows, cvProjectionMatrix1.cols) = P1;
+cv::Mat K0_cv,R0_cv, T0_cv, K1_cv,R1_cv, T1_cv;
+	
+cv::decomposeProjectionMatrix(cvProjectionMatrix0,K0_cv,R0_cv,T0_cv);
+cv::decomposeProjectionMatrix(cvProjectionMatrix1,K1_cv,R1_cv,T1_cv);
+Eigen::MatrixXf R0 = Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::RowMajor>>(R0_cv.ptr<float>());
+Eigen::MatrixXf T0 = Eigen::Map<Eigen::Vector4f>(T0_cv.ptr<float>());
+Eigen::MatrixXf K0 = Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::RowMajor>>(K0_cv.ptr<float>());
+Eigen::MatrixXf K1 = Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::RowMajor>>(K1_cv.ptr<float>());
+Eigen::MatrixXf R1 = Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::RowMajor>>(R1_cv.ptr<float>());
+Eigen::MatrixXf T1 = Eigen::Map<Eigen::Vector4f>(T1_cv.ptr<float>());
+
+/*
+std::cout << "++++++++ R0+++++++++++++++++" << std::endl;
+std::cout << R0 << std::endl;
+std::cout << "++++++++ T0+++++++++++++++++" << std::endl;
+std::cout << T0 << std::endl;
+std::cout << "++++++++ R1+++++++++++++++++" << std::endl;
+std::cout << R1 << std::endl;
+std::cout << "++++++++ T1+++++++++++++++++" << std::endl;
+std::cout << T1 << std::endl;
+*/
 Eigen::Matrix<float, 4, 4> M = Eigen::Matrix<float, 4, 4>::Identity();
 M.block<3, 3>(0, 0) = R0.inverse();
-M(0, 3) = T0(0) ;
-M(1, 3) = T0(1) ;
-M(2, 3) = T0(2);
+M(0, 3) = T0(0)/ T0(3);
+M(1, 3) = T0(1) /T0(3);
+M(2, 3) = T0(2)/T0(3);
 
 //std::cout << "++++++++Final M+++++++++++++++++" << std::endl;
 	//std::cout << M << std::endl;
@@ -87,12 +101,13 @@ Eigen::MatrixXf tmp = K1.inverse() * P1 * M;
 
 Eigen::MatrixXf R = tmp.block<3, 3>(0, 0);
 Eigen::MatrixXf T = tmp.block<3, 1>(0, 3);
-	/*
+/*
 	std::cout << "++++++++Final R+++++++++++++++++" << std::endl;
 	std::cout << R << std::endl;
 	std::cout << "++++++++Final T+++++++++++++++++" << std::endl;
 	std::cout << T << std::endl;
 	*/
+	
 	
 
  return std::make_tuple(K0, K1, R, T);
