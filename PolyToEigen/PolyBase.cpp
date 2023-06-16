@@ -329,6 +329,7 @@ PolyBase::Roots PolyBase::Solve(const PolyParams& params) const
 	
        std::vector<cv::Vec2f> roots;
 	cv::solvePoly(coeffs, roots);
+	std::cout << "new solve poly opencv" << std::endl;
 	
 	//std::vector<Eigen::Vector2f> roots =solvePoly(coeffs);
 
