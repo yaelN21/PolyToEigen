@@ -188,8 +188,8 @@ Eigen::MatrixXf T = tmp.block<3, 1>(0, 3);
 	{
 		Eigen::MatrixXf T0 = TranslateToOrigin(p0);
 		Eigen::MatrixXf T1 = TranslateToOrigin(p1);
-       		std::cout << "+++++++F+++++++" << std::endl;
-	  	std::cout << F << std::endl;
+       		//std::cout << "+++++++F+++++++" << std::endl;
+	  	//std::cout << F << std::endl;
 
 		Eigen::MatrixXf f = T1.transpose() * Eigen::MatrixXf(F) * T0;
         //std::cout << f << std::endl;
@@ -326,7 +326,12 @@ PolyBase::Roots PolyBase::Solve(const PolyParams& params) const
 
     // Solve the polynomial equation and obtain the roots
 
-	std::vector<Eigen::Vector2f> roots =solvePoly(coeffs);
+	
+       std::vector<cv::Vec2f> roots;
+	cv::solvePoly(coeffs, roots);
+	
+	//std::vector<Eigen::Vector2f> roots =solvePoly(coeffs);
+
 
 	Roots result(roots.size());
 	for (size_t i = 0u; i < roots.size(); ++i)
