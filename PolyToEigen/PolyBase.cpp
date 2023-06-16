@@ -69,7 +69,7 @@ cv::Mat cvProjectionMatrix1(3, 4, CV_32F);
     Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(
         cvProjectionMatrix1.ptr<float>(), cvProjectionMatrix1.rows, cvProjectionMatrix1.cols) = P1;
 cv::Mat K0_cv,R0_cv, T0_cv, K1_cv,R1_cv, T1_cv;
-	
+std::cout << "new OpenCV decompose" << std::endl;
 cv::decomposeProjectionMatrix(cvProjectionMatrix0,K0_cv,R0_cv,T0_cv);
 cv::decomposeProjectionMatrix(cvProjectionMatrix1,K1_cv,R1_cv,T1_cv);
 Eigen::MatrixXf R0 = Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::RowMajor>>(R0_cv.ptr<float>());
