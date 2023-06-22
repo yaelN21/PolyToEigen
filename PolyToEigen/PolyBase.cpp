@@ -17,13 +17,17 @@ namespace Triangulation {
 	{}
 
 
-	PolyBase::PolyBase(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1)
-		: TriangulationBase(P0, P1), F(ComputeFundamentalMatrix(P0, P1)), LS(P0, P1)
+	PolyBase::PolyBase(const Eigen::MatrixXf& P0,const Eigen::MatrixXf& P1,
+		const Eigen::MatrixXf& K0,const Eigen::MatrixXf& K1,const Eigen::MatrixXf& R0,const Eigen::MatrixXf& R1,
+		const  Eigen::Vector3f& T0,const  Eigen::Vector3f& T1)
+		: TriangulationBase(P0,P1,K0, K1,R0, R1,T0, T1), F(ComputeFundamentalMatrix(P0,P1)), LS(P0, P1)
 	
 	{}
 
-	PolyBase::PolyBase(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1, const PolyBase::Fundamental& F)
-		: TriangulationBase(P0, P1), F(F), LS(P0, P1)
+	PolyBase::PolyBase(const Eigen::MatrixXf& P0,const Eigen::MatrixXf& P1,
+		const Eigen::MatrixXf& K0,const Eigen::MatrixXf& K1,const Eigen::MatrixXf& R0,const Eigen::MatrixXf& R1,
+		const  Eigen::Vector3f& T0,const  Eigen::Vector3f& T1, const PolyBase::Fundamental& F)
+		: TriangulationBase(P0,P1,K0, K1,R0, R1,T0, T1), F(F), LS(P0, P1)
 	{}
 
 void PolyBase::decomposeProjectionMatrix(const Eigen::MatrixXf&P, Eigen::MatrixXf& K, Eigen::MatrixXf& R,  Eigen::MatrixXf&T) const
@@ -58,42 +62,13 @@ void PolyBase::decomposeProjectionMatrix(const Eigen::MatrixXf&P, Eigen::MatrixX
 }
 
 
-std::tuple<Eigen::MatrixXf, Eigen::MatrixXf,Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1) const{
+std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> PolyBase::SetOriginToCamera( const Eigen::MatrixXf& P0,const Eigen::MatrixXf& P1) const{
 
-
-cv::Mat cvProjectionMatrix0(3, 4, CV_32F);
-cv::Mat cvProjectionMatrix1(3, 4, CV_32F);
- Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(
-        cvProjectionMatrix0.ptr<float>(), cvProjectionMatrix0.rows, cvProjectionMatrix0.cols) = P0;
-
-    Eigen::Map<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(
-        cvProjectionMatrix1.ptr<float>(), cvProjectionMatrix1.rows, cvProjectionMatrix1.cols) = P1;
-cv::Mat K0_cv,R0_cv, T0_cv, K1_cv,R1_cv, T1_cv;
-//std::cout << "new OpenCV decompose" << std::endl;
-cv::decomposeProjectionMatrix(cvProjectionMatrix0,K0_cv,R0_cv,T0_cv);
-cv::decomposeProjectionMatrix(cvProjectionMatrix1,K1_cv,R1_cv,T1_cv);
-Eigen::MatrixXf R0 = Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::RowMajor>>(R0_cv.ptr<float>());
-Eigen::MatrixXf T0 = Eigen::Map<Eigen::Vector4f>(T0_cv.ptr<float>());
-Eigen::MatrixXf K0 = Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::RowMajor>>(K0_cv.ptr<float>());
-Eigen::MatrixXf K1 = Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::RowMajor>>(K1_cv.ptr<float>());
-Eigen::MatrixXf R1 = Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::RowMajor>>(R1_cv.ptr<float>());
-Eigen::MatrixXf T1 = Eigen::Map<Eigen::Vector4f>(T1_cv.ptr<float>());
-
-/*
-std::cout << "++++++++ R0+++++++++++++++++" << std::endl;
-std::cout << R0 << std::endl;
-std::cout << "++++++++ T0+++++++++++++++++" << std::endl;
-std::cout << T0 << std::endl;
-std::cout << "++++++++ R1+++++++++++++++++" << std::endl;
-std::cout << R1 << std::endl;
-std::cout << "++++++++ T1+++++++++++++++++" << std::endl;
-std::cout << T1 << std::endl;
-*/
 Eigen::Matrix<float, 4, 4> M = Eigen::Matrix<float, 4, 4>::Identity();
 M.block<3, 3>(0, 0) = R0.inverse();
-M(0, 3) = T0(0)/ T0(3);
-M(1, 3) = T0(1) /T0(3);
-M(2, 3) = T0(2)/T0(3);
+M(0, 3) = T0(0);
+M(1, 3) = T0(1) ;
+M(2, 3) = T0(2);
 
 //std::cout << "++++++++Final M+++++++++++++++++" << std::endl;
 	//std::cout << M << std::endl;
@@ -101,17 +76,10 @@ Eigen::MatrixXf tmp = K1.inverse() * P1 * M;
 
 Eigen::MatrixXf R = tmp.block<3, 3>(0, 0);
 Eigen::MatrixXf T = tmp.block<3, 1>(0, 3);
-/*
-	std::cout << "++++++++Final R+++++++++++++++++" << std::endl;
-	std::cout << R << std::endl;
-	std::cout << "++++++++Final T+++++++++++++++++" << std::endl;
-	std::cout << T << std::endl;
-	*/
-	
+
 	
 
- return std::make_tuple(K0, K1, R, T);
-
+ return std::make_tuple(R, T);
 }
 
 
@@ -152,13 +120,11 @@ Eigen::MatrixXf T = tmp.block<3, 1>(0, 3);
 	}
 
 
-	PolyBase::Fundamental PolyBase::ComputeFundamentalMatrix(const  Eigen::MatrixXf& P0, const  Eigen::MatrixXf& P1) const
+	PolyBase::Fundamental PolyBase::ComputeFundamentalMatrix( const Eigen::MatrixXf& P0,const Eigen::MatrixXf& P1) const
 	{
 		Eigen::MatrixXf R, T;
 		//Eigen::MatrixXf
-		Intrinsic K0;
-		Intrinsic K1;
-		std::tie(K0, K1, R,T) = SetOriginToCamera(P0, P1);
+		std::tie(R,T) = SetOriginToCamera(P0,P1);
 		Eigen::MatrixXf A = Eigen::MatrixXf(K0) * R.transpose() * T;
 
 		Eigen::Matrix3f C = Eigen::Matrix3f::Zero();
@@ -186,6 +152,7 @@ Eigen::MatrixXf T = tmp.block<3, 1>(0, 3);
 
 	std::pair<Eigen::Vector2f, Eigen::Vector2f> PolyBase::ComputeCorrectedCorrespondences(const Eigen::Vector2f& p0, const Eigen::Vector2f& p1) const
 	{
+		
 		Eigen::MatrixXf T0 = TranslateToOrigin(p0);
 		Eigen::MatrixXf T1 = TranslateToOrigin(p1);
        		//std::cout << "+++++++F+++++++" << std::endl;

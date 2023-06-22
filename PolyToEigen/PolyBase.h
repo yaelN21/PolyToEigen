@@ -24,7 +24,9 @@ namespace Triangulation {
 		
 
 		public:
-		PolyBase(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1);
+		PolyBase(const Eigen::MatrixXf& P0,const Eigen::MatrixXf& P1,
+		const Eigen::MatrixXf& K0,const Eigen::MatrixXf& K1,const Eigen::MatrixXf& R0,const Eigen::MatrixXf& R1,
+		const  Eigen::Vector3f& T0,const  Eigen::Vector3f& T1);
 			/**
 			 *	\brief	Constructor
 			 *	\param	P0	Camera matrix of the first camera.
@@ -41,7 +43,10 @@ namespace Triangulation {
 		 *\param 	K
 		 */
 		
-		PolyBase(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1, const Fundamental& F);
+		PolyBase(
+		const Eigen::MatrixXf& P0,const Eigen::MatrixXf& P1,
+		const Eigen::MatrixXf& K0,const Eigen::MatrixXf& K1,const Eigen::MatrixXf& R0,const Eigen::MatrixXf& R1,
+		const  Eigen::Vector3f& T0,const  Eigen::Vector3f& T1, const PolyBase::Fundamental& F);
 			/**
 			 *	\brief	Triangulates image points.
 			 *	\param	p0	Point in the image of the first camera.
@@ -139,9 +144,9 @@ namespace Triangulation {
 		 *	\param	P1	Second camera projection matrix.
 		 *	\return	K0, K1, R and T - camera intrinsics and orientation of second camera in new world coordinates.
 		 */
-std::tuple<Eigen::MatrixXf, Eigen::MatrixXf,Eigen::MatrixXf, Eigen::MatrixXf> SetOriginToCamera(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1) const;
+std::tuple<Eigen::MatrixXf, Eigen::MatrixXf> SetOriginToCamera( const Eigen::MatrixXf& P0,const Eigen::MatrixXf& P1) const;
 
-		Fundamental ComputeFundamentalMatrix(const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1) const;
+		Fundamental ComputeFundamentalMatrix( const Eigen::MatrixXf& P0, const Eigen::MatrixXf& P1) const;
 		/**
 		 *	\brief	Returns the order of the polynomial with given coefficients (highest non-zero coeffs index).
 		 *	\param	coeffs	Polynomial coefficients.
