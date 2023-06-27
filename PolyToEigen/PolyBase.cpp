@@ -145,7 +145,8 @@ Eigen::MatrixXf T = tmp.block<3, 1>(0, 3);
 		std::tie(x0, x1) = ComputeCorrectedCorrespondences(p0, p1);
 		if (x0.isZero() || x1.isZero())
 		{
-				 return Eigen::Vector3f();
+				   Eigen::Vector3f zeroVector(0.0f, 0.0f,0.0f);
+			    return zeroVector;
 		}
 		return LS.triangulate(x0, x1);
 	}
@@ -295,7 +296,12 @@ PolyBase::Roots PolyBase::Solve(const PolyParams& params) const
 
 	
        std::vector<cv::Vec2f> roots;
-	cv::solvePoly(coeffs, roots);
+	 try {
+        cv::solvePoly(coeffs, roots);
+		} 
+	catch (const cv::Exception& e) {
+        std::cout << "The polynomial equation cannot be solved." << std::endl;
+    }
 	//std::cout << "new solve poly opencv" << std::endl;
 	
 	//std::vector<Eigen::Vector2f> roots =solvePoly(coeffs);
