@@ -1,0 +1,9 @@
+# ninja log v5
+0	21	1689063063802148277	build.ninja	e19285434019608b
+1	1530	1689063111986538208	CMakeFiles/Triangulation.dir/src/TriangulationBase.cpp.o	4ce202f656eb511a
+0	1707	1689063112162539609	CMakeFiles/Triangulation.dir/src/Poly.cpp.o	4edc859098481fb3
+1	2783	1689063113238548169	CMakeFiles/Triangulation.dir/src/LinearLS.cpp.o	97b14b6ab81ed206
+1	26167	1689063136593750323	CMakeFiles/Triangulation.dir/src/PolyBase.cpp.o	3a3a7ea0fa3dfd86
+2	553	1689063137509712429	libTriangulation.a	fa52dd145203047b
+2	4817	1689063141797535937	CMakeFiles/main.dir/main.cpp.o	2885b7f6f7af2846
+4817	5948	1689063142925489751	main	1e14a8174f18523b

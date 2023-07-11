@@ -1,0 +1,2 @@
+/usr/bin/ar qc libTriangulation.a CMakeFiles/Triangulation.dir/src/Poly.cpp.o CMakeFiles/Triangulation.dir/src/PolyBase.cpp.o CMakeFiles/Triangulation.dir/src/TriangulationBase.cpp.o CMakeFiles/Triangulation.dir/src/LinearLS.cpp.o
+/usr/bin/ranlib libTriangulation.a
