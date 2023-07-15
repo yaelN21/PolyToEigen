@@ -113,7 +113,7 @@ std::tuple<Eigen::Matrix3f, Eigen::Vector3f> PolyBase::SetOriginToCamera( const 
 		Eigen::Vector3f T;
 
 		std::tie(R,T) = SetOriginToCamera(P0,P1);
-		Eigen::MatrixXf A = Eigen::Matrix3f(K0) * R.transpose() * T;
+		//Eigen::MatrixXf A = Eigen::Matrix3f(K0) * R.transpose() * T;
 		Eigen::Vector3f A = K0 * R.transpose() * T; 
 		Eigen::Matrix3f C = Eigen::Matrix3f::Zero();
 		C(0, 1) = -A(2);
