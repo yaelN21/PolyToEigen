@@ -28,12 +28,12 @@ class TriangulationBase {
 		 */
 		
 
-		TriangulationBase(const Eigen::MatrixXf& P0,const Eigen::MatrixXf& P1,
-		const Eigen::MatrixXf& K0,const Eigen::MatrixXf& K1,const Eigen::MatrixXf& R0,const Eigen::MatrixXf& R1,
-		const  Eigen::Vector3f& T0,const  Eigen::Vector3f& T1);
+		TriangulationBase(const Eigen::Matrix<float, 3, 4>& P0,const Eigen::Matrix<float, 3, 4>& P1,
+		const Eigen::Matrix3f& K0,const Eigen::Matrix3f& K1,const Eigen::Matrix3f& R0,const Eigen::Matrix3f& R1,
+		const Eigen::Vector3f& T0,const Eigen::Vector3f& T1);
 
 
-		TriangulationBase(const Eigen::MatrixXf& P0,const Eigen::MatrixXf& P1);
+		TriangulationBase(const Eigen::Matrix<float, 3, 4>& P0,const Eigen::Matrix<float, 3, 4>& P1);
 		virtual ~TriangulationBase() {}
 			/**
 			 *	\brief	Triangulates image points.
@@ -52,11 +52,10 @@ class TriangulationBase {
 		std::vector<Eigen::Vector3f> triangulate(const std::vector<Eigen::Vector2f>& p0, const std::vector<Eigen::Vector2f>& p1) const;
 
 	protected:
-		const Eigen::MatrixXf P0, P1;
-		const Eigen::MatrixXf K0, K1;
-		const Eigen::MatrixXf R0, R1;
+		const Eigen::Matrix<float, 3, 4> P0, P1;
+		const Eigen::Matrix3f K0, K1;
+		const Eigen::Matrix3f R0, R1;
 		const Eigen::Vector3f T0, T1;
 	};
 #endif  // TRIANGULATIONBASE_H
 }	// Triangulation
-

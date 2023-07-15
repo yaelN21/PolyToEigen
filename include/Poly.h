@@ -13,6 +13,7 @@ namespace Triangulation {
 	public:
 		using PolyBase::PolyBase;
 		using PolyBase::TriangulationBase::triangulate;
+		 ~Poly() = default; 
 	private:
 		std::vector<float> PreparePolyCoeffs(const PolyParams& params) const override;
 		std::vector<float> EvaluateRootsCosts(const Roots& roots, const PolyParams& params) const override;

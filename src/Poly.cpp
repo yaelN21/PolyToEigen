@@ -2,6 +2,7 @@
 
 namespace Triangulation {
 
+
 	std::vector<float> Poly::PreparePolyCoeffs(const Poly::PolyParams& params) const
 	{
 		float a, b, c, d, e, f;
